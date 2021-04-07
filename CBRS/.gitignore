@@ -2,6 +2,7 @@ Saves/
 log.txt
 JavaLog.txt
 *.visab
+*.vsconfig
 
 # This .gitignore file should be placed at the root of your Unity project directory
 #
