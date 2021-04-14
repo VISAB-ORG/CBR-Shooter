@@ -38,7 +38,6 @@ namespace Assets.Scripts.VISAB
         public Vector3 WeaponPosition { get; set; }
 
         #region optional properties
-
         public bool IsAmmunitionCollected => AmmunitionPosition == default;
 
         public bool IsHealthCollected => HealthPosition == default;
