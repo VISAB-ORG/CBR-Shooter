@@ -1,21 +1,20 @@
-﻿using System;
-using Assets.Scripts.Model;
-using Assets.Scripts.CBR.Model;
+﻿using Assets.Scripts.CBR.Model;
 using Assets.Scripts.CBR.Plan;
+using Assets.Scripts.Model;
 using Assets.Scripts.Util;
-
+using Assets.Scripts.VISAB;
+using System;
 using UnityEngine;
 using UnityEngine.AI;
-using Boris;
-using System.Collections.Generic;
 
 namespace Assets.Scripts.AI
 {
     /**
-     * 
+     *
      * Diese Klasse stellt die KI für einen computergesteuerten Spieler, der auf das CBR-System zugreift, zur Verfügung.
-     * 
+     *
      */
+
     public class BotCBRBehaviourScript : MonoBehaviour
     {
         /*
@@ -24,12 +23,15 @@ namespace Assets.Scripts.AI
         /**
          * Der Spieler mit CBR-System.
          */
+        public static bool mFirstTime = true;
+        public static bool mIsRequesting = false;
+        private float mCbrInterval = 0.06f;
+        private int mCounter = 0;
+        private Player mEnemy;
         private Player mPlayerWithCBR;
         /**
          * Der Gegner des Spielers.
          */
-        private Player mEnemy;
-
         /**
          * Variable, welche die vergangene Zeit speichert. Es sollen nur alle x Sekunden Aktionen durchgeführt werden.
          */
@@ -38,23 +40,15 @@ namespace Assets.Scripts.AI
         /**
          * Variable, die benötigt wird, um die Anzahl an Anfragen zu zählen.
          */
-        private int mCounter = 0;
-
         /**
          * Stellt der Agent zum ersten Mal eine Anfrage? Dies ist für den Programmfluss entscheident.
          */
-        public static bool mFirstTime = true;
-
         /**
          * Variable, die angibt, nach welcher Zeitspanne frühestens eine neue Anfrage gestellt werden kann.
          */
-        private float mCbrInterval = 0.06f;
-
         /**
          * Wird aktuelle eine Anfrage verarbeitet?
          */
-        public static bool mIsRequesting = false;
-
         /**
          * Startzeit zum Senden von Statistiken an den Path Viewer
          */
@@ -63,9 +57,75 @@ namespace Assets.Scripts.AI
         /**
          * Unity Methode
          */
+
+        private void AssignPlayers()
+        {
+            Tuple<Player, Player> playerTuple = CommonUnityFunctions.GetBotPlayersCorrectly();
+            mPlayerWithCBR = playerTuple.Item1;
+            mEnemy = playerTuple.Item2;
+        }
+
+        /// <summary>
+        /// TODO: Put in GameControllerScript
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
+        private VISAB.PlayerInformation ExtractPlayerInformation(Player player)
+        {
+            return new VISAB.PlayerInformation
+            {
+                Health = (uint)player.mPlayerHealth,
+                RelativeHealth = (float)player.mPlayerHealth / (float)Player.mMaxLife,
+                MagazineAmmunition = (uint)player.mEquippedWeapon.mCurrentMagazineAmmu,
+                Name = player.mName,
+                Plan = player.mPlan.ToString(),
+                Weapon = player.mEquippedWeapon.ToString(),
+                Statistics = new VISAB.PlayerStatistics
+                {
+                    Deaths = (uint)player.mStatistics.DeathCount(),
+                    Frags = (uint)player.mStatistics.FragCount(),
+                },
+                Position = UnityVectorConverter(player.GetPlayerPosition())
+            };
+        }
+
+        /// <summary>
+        /// TODO: This method should be in the GameControllerScript. 
+        /// It has nothing to do with the CBR bot itself.
+        /// New method signature: VISABConnector.SendStatistics<T>(T statistics) where T : IVISABStatistics
+        /// </summary>
+        private void SendStatisticsNEW()
+        {
+            var gameInformation = GameControllerScript.GameInformation;
+
+            var visabStatistics = new VISABStatistics
+            {
+                CBRPlayer = ExtractPlayerInformation(gameInformation.CBRPlayer),
+                ScriptPlayer = ExtractPlayerInformation(gameInformation.NonCBRPlayer),
+                AmmunitionPosition = UnityVectorConverter(gameInformation.AmmunitionPosition),
+                HealthPosition = UnityVectorConverter(gameInformation.HealthPosition),
+                WeaponPosition = UnityVectorConverter(gameInformation.WeaponPosition),
+                Round = gameInformation.RoundCounter
+            };
+        }
+
+        /// <summary>
+        /// TODO: Put in GameControllerScript
+        /// </summary>
+        /// <param name="unityVector"></param>
+        /// <returns></returns>
+        private System.Numerics.Vector3 UnityVectorConverter(Vector3 unityVector)
+        {
+            return new System.Numerics.Vector3
+            {
+                X = unityVector.x,
+                Y = unityVector.y,
+                Z = unityVector.z
+            };
+        }
+
         private void Update()
         {
-
             // Wenn die Start-Zeit erreicht wurde:
             if (Time.time >= updateTime)
             {
@@ -77,7 +137,7 @@ namespace Assets.Scripts.AI
 
             //Debug.Log(test);
 
-            //string json = JsonParser<StatisticsForPathViewer> 
+            //string json = JsonParser<StatisticsForPathViewer>
 
             //Communication cTest = new Communication(json);
             //String cTestString = cTest.Body;
@@ -105,8 +165,6 @@ namespace Assets.Scripts.AI
 
             if (mPlayerWithCBR != null && mTimer >= mCbrInterval && Time.timeScale != 0)
             {
-
-
                 if (mPlayerWithCBR.mEquippedWeapon.Equals("Pistol") && mPlayerWithCBR.GetWeaponCount() == 2)
                 {
                     mPlayerWithCBR.SwitchWeapon();
@@ -152,7 +210,6 @@ namespace Assets.Scripts.AI
 
                         //Debug.Log("BotCBRBehaviourScript#Update#Führe Plan aus!");
                         CommonUnityFunctions.ExecutePlan(mPlayerWithCBR, mEnemy, mPlayerWithCBR.mStatus);
-
                     }
                     else if (mPlayerWithCBR.mPlan.progress == (int)Plan.Progress.IN_PROGRESS)
                     {
@@ -170,7 +227,7 @@ namespace Assets.Scripts.AI
 
                         //Debug.Log("else if (mPlayerWithCBR.mPlan.progress == (int)Plan.Progress.IN_PROGRESS)");
                         // new situation leads to mark the current plan as done which forces a new plan
-                        //if (!mPlayerWithCBR.mStatus.Equals(stat)) 
+                        //if (!mPlayerWithCBR.mStatus.Equals(stat))
                         //{
                         //    mPlayerWithCBR.mStatus = stat;
                         //    mPlayerWithCBR.mPlan.progress = (int)Plan.Progress.DONE;
@@ -180,19 +237,12 @@ namespace Assets.Scripts.AI
             }
         }
 
-        /**
+        /*
          * Diese Methode ordnet die vorhandenen Spieler korrekt zu.
          */
-        private void AssignPlayers()
-        {
-            Tuple<Player, Player> playerTuple = CommonUnityFunctions.GetBotPlayersCorrectly();
-            mPlayerWithCBR = playerTuple.Item1;
-            mEnemy = playerTuple.Item2;
-        }
 
         private void SendStatistics()
         {
-
             // Aktuelle Rundenanzahl des Spiels.
             String roundCounter = GameControllerScript.roundCounter.ToString();
 
@@ -228,8 +278,8 @@ namespace Assets.Scripts.AI
 
             // Gesundheit
             String healthPosition = GameControllerScript.healthPositionRaw.ToString();
-            if(healthPosition.Equals("(0,9, 24,2, -145,8)"))
-            { 
+            if (healthPosition.Equals("(0,9, 24,2, -145,8)"))
+            {
                 healthPosition = " healthSpawnPointA";
             }
             else if (healthPosition.Equals("(-2,8, 24,2, 8,1)"))

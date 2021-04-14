@@ -13,6 +13,12 @@ using UnityEngine.AI;
  */
 public class GameControllerScript : MonoBehaviour
 {
+    /// <summary>
+    /// Represents the current state of the game
+    /// Might rename to GameState
+    /// </summary>
+    public static GameInformation GameInformation { get; private set; }
+
     /**
      * C.W.: Reference to an empty gameObject identifys the prefered camping position
      * and respective aiming positions.
@@ -259,10 +265,12 @@ public class GameControllerScript : MonoBehaviour
 
         mRespawnTime = 3f;
 
-        mPlayerNames = new List<string>();
-        mPlayerNames.Add("John Doe");
-        mPlayerNames.Add("Jane Doe");
-        mPlayerNames.Add("Chuck Norris");
+        mPlayerNames = new List<string>
+        {
+            "John Doe",
+            "Jane Doe",
+            "Chuck Norris"
+        };
 
 
 
