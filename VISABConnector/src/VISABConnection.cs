@@ -2,7 +2,11 @@
 {
     public class VISABConnection
     {
-        private const uint VISABPORT = 9999;
+        static VISABConnection()
+        {
+        }
+
+        public IRequestHandler RequestHandler { get; }
 
         public static VISABConnection Connect()
         {
