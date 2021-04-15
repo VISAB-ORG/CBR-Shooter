@@ -4,6 +4,8 @@ using static GameControllerScript;
 
 /// <summary>
 /// Class keeping information of the current state of the game
+/// TODO: Add relative Coordinate properties?
+/// There can only be one of each Item on the map
 /// </summary>
 public class GameInformation
 {
@@ -48,8 +50,3 @@ public class GameInformation
     /// </summary>
     public Vector3 WeaponPosition { get; set; }
 }
-
-/* Paar comments zum merken:
- * es kann maximal jeweils ein Health, Waffe oder Ammu auf der Map sein.
- * Jeweils zusaetzlich relative Coordinaten hier reinbringen z.B. WeaponPositionRelative
-*/

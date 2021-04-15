@@ -3,7 +3,7 @@
 namespace Assets.Scripts.VISAB
 {
     /// <summary>
-    /// TODO: Saemtliche Vektoren hier direkt relativ uebergeben?
+    /// TODO: Use relative vectors here?
     /// </summary>
     public class VISABStatistics
     {

@@ -11,7 +11,7 @@ namespace Assets.Scripts.VISAB
         public string Name { get; set; }
 
         /// <summary>
-        /// TODO: Enum ggf. besser?
+        /// TODO: Potentially use ENUM
         /// </summary>
         public string Plan { get; set; }
 

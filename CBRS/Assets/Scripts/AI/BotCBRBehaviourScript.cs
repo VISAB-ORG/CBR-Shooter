@@ -2,7 +2,6 @@
 using Assets.Scripts.CBR.Plan;
 using Assets.Scripts.Model;
 using Assets.Scripts.Util;
-using Assets.Scripts.VISAB;
 using System;
 using UnityEngine;
 using UnityEngine.AI;
@@ -19,45 +18,46 @@ namespace Assets.Scripts.AI
     {
         /*
          * Für eine KI, die mehrere Gegner berücksichtigen kann, muss hier eine Liste mit allen Gegnern verwendet werden.
-         * /
-        /**
-         * Der Spieler mit CBR-System.
-         */
-        public static bool mFirstTime = true;
-        public static bool mIsRequesting = false;
-        private float mCbrInterval = 0.06f;
-        private int mCounter = 0;
-        private Player mEnemy;
+        */
+
+        /// <summary>
+        /// Der Spieler mit CBR-System.
+        /// </summary>
         private Player mPlayerWithCBR;
-        /**
-         * Der Gegner des Spielers.
-         */
-        /**
-         * Variable, welche die vergangene Zeit speichert. Es sollen nur alle x Sekunden Aktionen durchgeführt werden.
-         */
+        /// <summary>
+        /// Variable, welche die vergangene Zeit speichert. Es sollen nur alle x Sekunden Aktionen durchgeführt werden.
+        /// </summary>
+        public static bool mFirstTime = true;
+        /// <summary>
+        /// Wird aktuelle eine Anfrage verarbeitet?
+        /// </summary>
+        public static bool mIsRequesting = false;
+        /// <summary>
+        /// Variable, die angibt, nach welcher Zeitspanne frühestens eine neue Anfrage gestellt werden kann.
+        /// </summary>
+        private float mCbrInterval = 0.06f;
+        /// <summary>
+        /// Variable, die benötigt wird, um die Anzahl an Anfragen zu zählen.
+        /// </summary>
+        private int mCounter = 0;
+        /// <summary>
+        /// Der Gegner des Spielers.
+        /// </summary>
+        private Player mEnemy;
+
+        /// <summary>
+        /// Variable, welche die vergangene Zeit speichert. Es sollen nur alle x Sekunden Aktionen durchgeführt werden.
+        /// </summary>
         private float mTimer = 0f;
 
-        /**
-         * Variable, die benötigt wird, um die Anzahl an Anfragen zu zählen.
-         */
-        /**
-         * Stellt der Agent zum ersten Mal eine Anfrage? Dies ist für den Programmfluss entscheident.
-         */
-        /**
-         * Variable, die angibt, nach welcher Zeitspanne frühestens eine neue Anfrage gestellt werden kann.
-         */
-        /**
-         * Wird aktuelle eine Anfrage verarbeitet?
-         */
-        /**
-         * Startzeit zum Senden von Statistiken an den Path Viewer
-         */
+        /// <summary>
+        /// Startzeit zum Senden von Statistiken an den Path Viewer
+        /// </summary>
         private int updateTime = 1;
 
-        /**
-         * Unity Methode
-         */
-
+        /// <summary>
+        /// Diese Methode ordnet die vorhandenen Spieler korrekt zu.
+        /// </summary>
         private void AssignPlayers()
         {
             Tuple<Player, Player> playerTuple = CommonUnityFunctions.GetBotPlayersCorrectly();
@@ -66,64 +66,8 @@ namespace Assets.Scripts.AI
         }
 
         /// <summary>
-        /// TODO: Put in GameControllerScript
+        /// Unity method
         /// </summary>
-        /// <param name="player"></param>
-        /// <returns></returns>
-        private VISAB.PlayerInformation ExtractPlayerInformation(Player player)
-        {
-            return new VISAB.PlayerInformation
-            {
-                Health = (uint)player.mPlayerHealth,
-                RelativeHealth = (float)player.mPlayerHealth / (float)Player.mMaxLife,
-                MagazineAmmunition = (uint)player.mEquippedWeapon.mCurrentMagazineAmmu,
-                Name = player.mName,
-                Plan = player.mPlan.ToString(),
-                Weapon = player.mEquippedWeapon.ToString(),
-                Statistics = new VISAB.PlayerStatistics
-                {
-                    Deaths = (uint)player.mStatistics.DeathCount(),
-                    Frags = (uint)player.mStatistics.FragCount(),
-                },
-                Position = UnityVectorConverter(player.GetPlayerPosition())
-            };
-        }
-
-        /// <summary>
-        /// TODO: This method should be in the GameControllerScript. 
-        /// It has nothing to do with the CBR bot itself.
-        /// New method signature: VISABConnector.SendStatistics<T>(T statistics) where T : IVISABStatistics
-        /// </summary>
-        private void SendStatisticsNEW()
-        {
-            var gameInformation = GameControllerScript.GameInformation;
-
-            var visabStatistics = new VISABStatistics
-            {
-                CBRPlayer = ExtractPlayerInformation(gameInformation.CBRPlayer),
-                ScriptPlayer = ExtractPlayerInformation(gameInformation.NonCBRPlayer),
-                AmmunitionPosition = UnityVectorConverter(gameInformation.AmmunitionPosition),
-                HealthPosition = UnityVectorConverter(gameInformation.HealthPosition),
-                WeaponPosition = UnityVectorConverter(gameInformation.WeaponPosition),
-                Round = gameInformation.RoundCounter
-            };
-        }
-
-        /// <summary>
-        /// TODO: Put in GameControllerScript
-        /// </summary>
-        /// <param name="unityVector"></param>
-        /// <returns></returns>
-        private System.Numerics.Vector3 UnityVectorConverter(Vector3 unityVector)
-        {
-            return new System.Numerics.Vector3
-            {
-                X = unityVector.x,
-                Y = unityVector.y,
-                Z = unityVector.z
-            };
-        }
-
         private void Update()
         {
             // Wenn die Start-Zeit erreicht wurde:
@@ -237,10 +181,9 @@ namespace Assets.Scripts.AI
             }
         }
 
-        /*
-         * Diese Methode ordnet die vorhandenen Spieler korrekt zu.
-         */
-
+        /// <summary>
+        /// Sends the statistics to PathViewer.jar
+        /// </summary>
         private void SendStatistics()
         {
             // Aktuelle Rundenanzahl des Spiels.

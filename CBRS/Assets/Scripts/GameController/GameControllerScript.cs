@@ -7,6 +7,8 @@ using Assets.Scripts.CMAS;
 using System.Collections;
 using Assets.Scripts.AI;
 using UnityEngine.AI;
+using Assets.Scripts;
+using Assets.Scripts.VISAB;
 
 /**
  * Dieses Skript stellt den zentralen Bezugspunkt des Programmes dar, an dem alle relevanten Daten gespeichert sind.
@@ -1010,5 +1012,64 @@ public class GameControllerScript : MonoBehaviour
             }
         }
     }
+
+    #region Http VISAB communication
+    /// <summary>
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
+    private Assets.Scripts.VISAB.PlayerInformation ExtractPlayerInformation(Player player)
+    {
+        return new Assets.Scripts.VISAB.PlayerInformation
+        {
+            Health = (uint)player.mPlayerHealth,
+            RelativeHealth = (float)player.mPlayerHealth / (float)Player.mMaxLife,
+            MagazineAmmunition = (uint)player.mEquippedWeapon.mCurrentMagazineAmmu,
+            Name = player.mName,
+            Plan = player.mPlan.ToString(),
+            Weapon = player.mEquippedWeapon.ToString(),
+            Statistics = new Assets.Scripts.VISAB.PlayerStatistics
+            {
+                Deaths = (uint)player.mStatistics.DeathCount(),
+                Frags = (uint)player.mStatistics.FragCount(),
+            },
+            Position = UnityVectorConverter(player.GetPlayerPosition())
+        };
+    }
+
+    /// <summary>
+    /// New method signature: VISABConnector.SendStatistics<T>(T statistics) where T : IVISABStatistics
+    /// </summary>
+    private void SendStatisticsNEW()
+    {
+        var gameInformation = GameControllerScript.GameInformation;
+
+        var visabStatistics = new Assets.Scripts.VISAB.VISABStatistics
+        {
+            CBRPlayer = ExtractPlayerInformation(gameInformation.CBRPlayer),
+            ScriptPlayer = ExtractPlayerInformation(gameInformation.NonCBRPlayer),
+            AmmunitionPosition = UnityVectorConverter(gameInformation.AmmunitionPosition),
+            HealthPosition = UnityVectorConverter(gameInformation.HealthPosition),
+            WeaponPosition = UnityVectorConverter(gameInformation.WeaponPosition),
+            Round = gameInformation.RoundCounter
+        };
+    }
+
+    /// <summary>
+    /// Transforms a Unity Vector3 struct into a System.Numerics.Vector3
+    /// </summary>
+    /// <param name="unityVector">The unity vector</param>
+    /// <returns></returns>
+    private System.Numerics.Vector3 UnityVectorConverter(Vector3 unityVector)
+    {
+        return new System.Numerics.Vector3
+        {
+            X = unityVector.x,
+            Y = unityVector.y,
+            Z = unityVector.z
+        };
+    }
+
+    #endregion
 
 }
