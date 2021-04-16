@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VISABConnector", "VISABConnector\VISABConnector.csproj", "{09BDD6BF-467E-4E01-82FC-DE0409309D0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUi", "TestUi\TestUi.csproj", "{AC06B1F8-0571-4583-B5C8-676659511094}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestUi", "TestUi\TestUi.csproj", "{AC06B1F8-0571-4583-B5C8-676659511094}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAPI", "TestAPI\TestAPI.csproj", "{714C8741-E363-46E0-93B7-6ABD72C517AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{AC06B1F8-0571-4583-B5C8-676659511094}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC06B1F8-0571-4583-B5C8-676659511094}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC06B1F8-0571-4583-B5C8-676659511094}.Release|Any CPU.Build.0 = Release|Any CPU
+		{714C8741-E363-46E0-93B7-6ABD72C517AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{714C8741-E363-46E0-93B7-6ABD72C517AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{714C8741-E363-46E0-93B7-6ABD72C517AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{714C8741-E363-46E0-93B7-6ABD72C517AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,6 +3,9 @@ using System.Net.Http;
 
 namespace VISABConnector
 {
+    /// <summary>
+    /// Used for making Requests to the VISAB API (web api in java project)
+    /// </summary>
     public interface IVisabRequestHandler
     {
         public TResponse GetDeserializedResponse<TResponse>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, string body);

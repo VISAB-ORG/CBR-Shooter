@@ -7,6 +7,10 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <DockPanel>
+            <Button Click="Get_Connection">Get Connection object</Button>
+            <Button Click="Ping_Test">Ping test</Button>
+            <Button Click="Statistics_Test">Statistics test</Button>
+        </DockPanel>
     </Grid>
 </Window>
