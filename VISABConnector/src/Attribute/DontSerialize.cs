@@ -2,11 +2,8 @@
 
 namespace VISABConnector
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Property)]
     public class DontSerialize : Attribute
     {
-        public DontSerialize()
-        {
-        }
     }
 }

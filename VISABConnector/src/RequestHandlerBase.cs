@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace VISABConnector
 {
-    public class RequestHandler : IRequestHandler
+    public class RequestHandlerBase
     {
         private readonly HttpClient httpClient;
 
-        public RequestHandler(string baseAdress)
+        public RequestHandlerBase(string baseAdress)
         {
             // Fix wrong baseAdress: https://stackoverflow.com/questions/23438416/why-is-httpclient-baseaddress-not-working
             var _baseAdress = baseAdress.EndsWith('/') ? baseAdress : baseAdress + '/';
@@ -23,19 +22,9 @@ namespace VISABConnector
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(Default.MediaType));
         }
 
-        public HttpResponseMessage GetResponse(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, string body)
+        public HttpResponseMessage GetResponse(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters = null, string body = null)
         {
             return httpClient.Send(PrepareRequest(httpMethod, relativeUrl, queryParameters, body));
-        }
-
-        public HttpResponseMessage GetResponse(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters)
-        {
-            return httpClient.Send(PrepareRequest(httpMethod, relativeUrl, queryParameters));
-        }
-
-        public HttpResponseMessage GetResponse(HttpMethod httpMethod, string relativeUrl)
-        {
-            return httpClient.Send(PrepareRequest(httpMethod, relativeUrl));
         }
 
         protected static string BuildParameterizedUrl(string relativeUrl, IEnumerable<string> queryParameters)
@@ -47,7 +36,7 @@ namespace VISABConnector
         {
             // Fix wrong relativeUrl: https://stackoverflow.com/questions/23438416/why-is-httpclient-baseaddress-not-working
             var url = relativeUrl.StartsWith('/') ? relativeUrl.Remove(0, 1) : relativeUrl;
-            
+
             if (queryParameters != null)
                 url = BuildParameterizedUrl(url, queryParameters);
 
