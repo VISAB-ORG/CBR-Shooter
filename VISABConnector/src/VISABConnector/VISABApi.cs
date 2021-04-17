@@ -80,7 +80,7 @@ namespace VISABConnector
         /// </summary>
         /// <param name="game">The game of which to sent data</param>
         /// <returns>A VISABApi object if the VISAB api is running, else null</returns>
-        public static VISABApi Initiate(string game)
+        public static VISABApi InitiateSession(string game)
         {
             var conn = new VISABApi(game, Guid.NewGuid());
             if (conn.IsGameSupported(game) && conn.OpenSession())

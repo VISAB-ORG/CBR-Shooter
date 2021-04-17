@@ -20,7 +20,7 @@ namespace TestUi
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static VISABConnector.VISABApi connection;
+        private static VISABConnector.VISABApi api;
 
         public MainWindow()
         {
@@ -29,22 +29,22 @@ namespace TestUi
 
         private void Get_Connection(object sender, RoutedEventArgs e)
         {
-            connection = VISABConnector.VISABApi.Initiate("TestGame");
+            api = VISABConnector.VISABApi.InitiateSession("TestGame");
             MessageBox.Show("Connection object received!");
         }
 
         private void Ping_Test(object sender, RoutedEventArgs e)
         {
-            if (connection != null)
-                MessageBox.Show($"Is VISAB API running? {connection.IsReachable}");
+            if (api != null)
+                MessageBox.Show($"Is VISAB API running? {api.IsReachable}");
         }
 
         private void Statistics_Test(object sender, RoutedEventArgs e)
         {
-            if (connection != null)
+            if (api != null)
             {
                 var stats = new TestStatistics { Kills = 12, PlayerName = "SomePlayerName", SessionId = Guid.NewGuid() };
-                connection.SendStatistics(stats);
+                api.SendStatistics(stats);
             }
         }
     }
