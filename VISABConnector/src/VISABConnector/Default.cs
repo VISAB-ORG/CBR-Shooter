@@ -9,8 +9,8 @@ namespace VISABConnector
     {
         public static readonly Encoding Encoding = Encoding.UTF8;
 
-        public static readonly string MediaType = "application/json";
+        public static readonly string ContentMediaType = "application/json";
 
-        public static readonly string BaseAdress = "https://localhost:44366/api/VISAB";
+        public static readonly string VISABBaseAdress = "https://localhost:44366/api/VISAB";
     }
 }

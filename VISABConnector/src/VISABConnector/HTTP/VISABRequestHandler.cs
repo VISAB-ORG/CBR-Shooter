@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json; // TODO: Potentially just use gson, as is used in the VISAB java project
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 
@@ -6,8 +7,18 @@ namespace VISABConnector
 {
     public class VISABRequestHandler : RequestHandlerBase, IVisabRequestHandler
     {
-        public VISABRequestHandler() : base(Default.BaseAdress)
+        private readonly JsonSerializerSettings serializerSettings;
+
+        public VISABRequestHandler(string game, Guid sessionId) : base(Default.VISABBaseAdress)
         {
+            httpClient.DefaultRequestHeaders.Add("game", game);
+            httpClient.DefaultRequestHeaders.Add("sessionId", sessionId.ToString());
+
+            serializerSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new IgnorePropertyContractResolver<DontSerialize>(),
+                Formatting = Formatting.Indented
+            };
         }
 
         public TResponse GetDeserializedResponse<TResponse>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters = null, string body = null)
@@ -31,7 +42,7 @@ namespace VISABConnector
 
         public string GetJsonResponse<TBody>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, TBody body)
         {
-            var json = JsonConvert.SerializeObject(body, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(body, serializerSettings);
 
             return GetJsonResponse(httpMethod, relativeUrl, queryParameters, json);
         }
@@ -43,7 +54,7 @@ namespace VISABConnector
 
         public bool GetSuccessResponse<TBody>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, TBody body)
         {
-            var json = JsonConvert.SerializeObject(body, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(body, serializerSettings);
 
             return GetSuccessResponse(httpMethod, relativeUrl, queryParameters, json);
         }

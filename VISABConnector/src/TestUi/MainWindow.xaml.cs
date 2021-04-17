@@ -36,7 +36,7 @@ namespace TestUi
         private void Ping_Test(object sender, RoutedEventArgs e)
         {
             if (connection != null)
-                MessageBox.Show($"Is VISAB API running? {connection.IsRunning}");
+                MessageBox.Show($"Is VISAB API running? {connection.IsReachable}");
         }
 
         private void Statistics_Test(object sender, RoutedEventArgs e)
