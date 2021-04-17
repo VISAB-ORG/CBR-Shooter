@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace TestAPI.Controllers
 {
-    [Route("api/VISAB")]
+    [Route("api")]
     [ApiController]
-    public class VISABController : ControllerBase
+    public class HomeController : ControllerBase
     {
         [HttpGet("games")]
         public IActionResult GetSupportedGamesList()

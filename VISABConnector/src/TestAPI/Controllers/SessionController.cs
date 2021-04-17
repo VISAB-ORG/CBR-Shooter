@@ -1,16 +1,38 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TestAPI.Controllers
 {
-    [Route("api/VISAB/session")]
+    [Route("api/session")]
     [ApiController]
     public class SessionController : Controller
     {
         public static IDictionary<Guid, string> ActiveSessions { get; } = new Dictionary<Guid, string>();
+
+        [HttpGet("close")]
+        public IActionResult CloseSession()
+        {
+            var headers = Request.Headers;
+
+            if (headers.ContainsKey("sessionId"))
+            {
+                Guid.TryParse(headers["sessionId"], out var sessionId);
+                ActiveSessions.Remove(sessionId);
+
+                return Ok("Removed session");
+            }
+            return Ok("Session was not active.");
+
+            // We should likely also return true if no session was open right?
+            return BadRequest("Session with sessionId was not open.");
+        }
+
+        [HttpGet("list")]
+        public IActionResult GetCurrentlyActive()
+        {
+            return Ok(ActiveSessions);
+        }
 
         [HttpGet("status")]
         public IActionResult GetStatus([FromQuery] Guid sessionId)
@@ -43,22 +65,6 @@ namespace TestAPI.Controllers
             }
 
             return BadRequest("sessionId or game not found in headers.");
-        }
-
-        [HttpGet("close")]
-        public IActionResult CloseSession()
-        {
-            var headers = Request.Headers;
-            var sessionId = Guid.Empty;
-
-            if (headers.ContainsKey("sessionId")) {
-            ActiveSessions.Remove(sessionId);
-            return Ok("Removed session");
-        }
-            return Ok("Session was not active.");
-
-            // We should likely also return true if no session was open right?
-            return BadRequest("Session with sessionId was not open.");
         }
     }
 }

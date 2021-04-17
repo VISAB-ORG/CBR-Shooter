@@ -9,9 +9,7 @@ namespace TestUi
 {
     public class TestStatistics : IVISABStatistics
     {
-        public string Game => "TestGame 123";
-
-        public Guid SessionId { get; set; }
+        public string Game => "TestGame";
 
         public int Kills { get; set; }
 

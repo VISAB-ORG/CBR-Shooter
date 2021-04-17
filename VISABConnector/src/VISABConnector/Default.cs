@@ -11,6 +11,6 @@ namespace VISABConnector
 
         public static readonly string ContentMediaType = "application/json";
 
-        public static readonly string VISABBaseAdress = "https://localhost:44366/api/VISAB";
+        public static readonly string VISABBaseAdress = "https://localhost:44366/api";
     }
 }

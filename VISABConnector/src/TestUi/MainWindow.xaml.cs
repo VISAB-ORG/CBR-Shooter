@@ -29,8 +29,9 @@ namespace TestUi
 
         private void Get_Connection(object sender, RoutedEventArgs e)
         {
+            if (api != null)
+                api.Dispose();
             api = VISABConnector.VISABApi.InitiateSession("TestGame");
-            MessageBox.Show("Connection object received!");
         }
 
         private void Ping_Test(object sender, RoutedEventArgs e)
@@ -43,7 +44,7 @@ namespace TestUi
         {
             if (api != null)
             {
-                var stats = new TestStatistics { Kills = 12, PlayerName = "SomePlayerName", SessionId = Guid.NewGuid() };
+                var stats = new TestStatistics { Kills = 12, PlayerName = "SomePlayerName" };
                 api.SendStatistics(stats);
             }
         }
