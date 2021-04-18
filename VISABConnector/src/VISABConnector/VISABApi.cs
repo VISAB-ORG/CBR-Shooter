@@ -56,6 +56,11 @@ namespace VISABConnector
         }
 
         /// <summary>
+        /// Event that is invoked before closing the connection;
+        /// </summary>
+        public event EventHandler<ClosingEventArgs> CloseEvent;
+
+        /// <summary>
         /// The name of the game from which data will be sent
         /// </summary>
         public string Game { get; }
@@ -90,6 +95,17 @@ namespace VISABConnector
         }
 
         /// <summary>
+        /// Closes the session in the VISAB api
+        /// </summary>
+        /// <returns></returns>
+        public bool CloseSession()
+        {
+            CloseEvent?.Invoke(this, new ClosingEventArgs { RequestHandler = RequestHandler });
+
+            return RequestHandler.GetSuccessResponse(HttpMethod.Get, ENDPOINT_SESSION_CLOSE, null, null);
+        }
+
+        /// <summary>
         /// Close the session upon disposing
         /// </summary>
         public void Dispose() => CloseSession();
@@ -115,15 +131,6 @@ namespace VISABConnector
         public bool SendStatistics<T>(T statistics) where T : IVISABStatistics
         {
             return RequestHandler.GetSuccessResponse(HttpMethod.Post, ENDPOINT_STATISTICS, null, statistics);
-        }
-
-        /// <summary>
-        /// Closes the session in the VISAB api
-        /// </summary>
-        /// <returns></returns>
-        private bool CloseSession()
-        {
-            return RequestHandler.GetSuccessResponse(HttpMethod.Get, ENDPOINT_SESSION_CLOSE, null, null);
         }
 
         /// <summary>
