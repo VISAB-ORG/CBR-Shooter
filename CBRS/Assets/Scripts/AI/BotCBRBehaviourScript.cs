@@ -75,8 +75,6 @@ namespace Assets.Scripts.AI
             {
                 // Frequenz hochzählen
                 updateTime = Mathf.FloorToInt(Time.time) + 1;
-                // Statistiken senden
-                SendStatistics();
             }
 
             //Debug.Log(test);
@@ -179,108 +177,6 @@ namespace Assets.Scripts.AI
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Sends the statistics to PathViewer.jar
-        /// </summary>
-        private void SendStatistics()
-        {
-            // Aktuelle Rundenanzahl des Spiels.
-            String roundCounter = GameControllerScript.roundCounter.ToString();
-
-            // Aktuelle Koordiante der Spieler.
-            String cbrBotCoords = mPlayerWithCBR.GetPlayerPosition().ToString();
-            String scriptBotCoords = mEnemy.GetPlayerPosition().ToString();
-
-            // Aktuelle Gesundheit der Spieler.
-            String cbrBotHealth = mPlayerWithCBR.mPlayerHealth.ToString();
-            String scriptBotHealth = mEnemy.mPlayerHealth.ToString();
-
-            // Aktuelle Waffe der Spieler.
-            String cbrBotWeapon = mPlayerWithCBR.mEquippedWeapon.mName;
-            String scriptBotWeapon = mEnemy.mEquippedWeapon.mName;
-
-            // Aktuelle Munition der Spieler.
-            String cbrBotWeaponMagammu = mPlayerWithCBR.mEquippedWeapon.mCurrentMagazineAmmu.ToString();
-            String scriptBotWeaponMagammu = mEnemy.mEquippedWeapon.mCurrentMagazineAmmu.ToString();
-
-            // Aktuelle Statstik der Spieler
-            String cbrBotStatistic = mPlayerWithCBR.mStatistics.ToString();
-            String scriptBotStatistic = mEnemy.mStatistics.ToString();
-
-            // Aktueller Name der Spieler
-            String cbrBotName = mPlayerWithCBR.mName;
-            String scriptBotName = mEnemy.mName;
-
-            //Aktueller Plan der Spieler
-            String cbrBotPlan = mPlayerWithCBR.mPlan.actionsAsString;
-            String scriptBotPlan = BotBehaviourScript.ScriptBotPlan.ToString();
-
-            // Aktuelle Position der Items
-
-            // Gesundheit
-            String healthPosition = GameControllerScript.healthPositionRaw.ToString();
-            if (healthPosition.Equals("(0,9, 24,2, -145,8)"))
-            {
-                healthPosition = " healthSpawnPointA";
-            }
-            else if (healthPosition.Equals("(-2,8, 24,2, 8,1)"))
-            {
-                healthPosition = " healthSpawnPointB";
-            }
-            else if (healthPosition.Equals("(0,0, 0,0, 0,0)"))
-            {
-                healthPosition = "notSpawned";
-            }
-
-            // Munition
-            String ammuPosition = GameControllerScript.ammuPositionRaw.ToString();
-            if (ammuPosition.Equals("(-38,4, 0,5, -46,2)"))
-            {
-                ammuPosition = " ammuSpawnPointA";
-            }
-            else if (ammuPosition.Equals("(36,7, 0,5, -87,3)"))
-            {
-                ammuPosition = " ammuSpawnPointB";
-            }
-            else if (ammuPosition.Equals("(64,6, 0,5, -66,4)"))
-            {
-                ammuPosition = " ammuSpawnPointC";
-            }
-            else if (ammuPosition.Equals("(-73,8, 0,5, -59,3)"))
-            {
-                ammuPosition = " ammuSpawnPointD";
-            }
-            else if (ammuPosition.Equals("(3,6, 0,5, -68,9)"))
-            {
-                ammuPosition = " ammuSpawnPointE";
-            }
-            else if (ammuPosition.Equals("(0,0, 0,0, 0,0)"))
-            {
-                ammuPosition = "notSpawned";
-            }
-
-            // Waffe
-            String weaponPosition = GameControllerScript.weaponPositionRaw.ToString();
-            if (weaponPosition.Equals("(36,3, 1,2, -85,6)"))
-            {
-                weaponPosition = " weaponSpawnPointA";
-            }
-            else if (weaponPosition.Equals("(-35,7, 1,2, -44,1)"))
-            {
-                weaponPosition = " weaponSpawnPointB";
-            }
-            else if (weaponPosition.Equals("(0,0, 0,0, 0,0)"))
-            {
-                weaponPosition = "notSpawned";
-            }
-
-            StatisticsForPathViewer statisticsForPathViewer = new StatisticsForPathViewer(cbrBotCoords, scriptBotCoords, cbrBotHealth, scriptBotHealth, cbrBotWeapon, scriptBotWeapon, cbrBotStatistic, scriptBotStatistic, scriptBotName, cbrBotName, cbrBotPlan, scriptBotWeaponMagammu, cbrBotWeaponMagammu, healthPosition, ammuPosition, weaponPosition, roundCounter, scriptBotPlan);
-
-            JsonParser<StatisticsForPathViewer>.SerializeObject(
-                new ConnectionToPathViewer.ConnectionToPathViewer().Send(
-                    statisticsForPathViewer));
         }
     }
 }

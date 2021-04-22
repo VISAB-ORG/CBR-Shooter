@@ -2,6 +2,6 @@
 {
     public class ClosingEventArgs
     {
-        public IVisabRequestHandler RequestHandler { get; set; }
+        public IVISABRequestHandler RequestHandler { get; set; }
     }
 }

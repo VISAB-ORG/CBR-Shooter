@@ -10,12 +10,12 @@ namespace Assets.Scripts.VISAB
 
         public string Name { get; set; }
 
-        /// <summary>
-        /// TODO: Potentially use ENUM
-        /// </summary>
         public string Plan { get; set; }
 
-        public Vector3 Position { get; set; }
+        /// <summary>
+        /// 2D Representation of the players position
+        /// </summary>
+        public Vector2 Position { get; set; }
 
         public float RelativeHealth { get; set; }
 

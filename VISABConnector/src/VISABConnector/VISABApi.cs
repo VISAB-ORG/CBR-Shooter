@@ -32,6 +32,11 @@ namespace VISABConnector
         private const string ENDPOINT_SESSION_CLOSE = "session/close";
 
         /// <summary>
+        /// Relative endpoints for listing the currently active sessions in VISAB API
+        /// </summary>
+        private const string ENDPOINT_SESSION_LIST = "session/list";
+
+        /// <summary>
         /// Relative endpoint for opening session in VISAB API
         /// </summary>
         private const string ENDPOINT_SESSION_OPEN = "session/open";
@@ -56,9 +61,9 @@ namespace VISABConnector
         }
 
         /// <summary>
-        /// Event that is invoked before closing the connection;
+        /// Event that is invoked before closing the session;
         /// </summary>
-        public event EventHandler<ClosingEventArgs> CloseEvent;
+        public event EventHandler<ClosingEventArgs> CloseSessionEvent;
 
         /// <summary>
         /// The name of the game from which data will be sent
@@ -73,7 +78,7 @@ namespace VISABConnector
         /// <summary>
         /// The RequestHandler used by the VISABApi object
         /// </summary>
-        public IVisabRequestHandler RequestHandler { get; }
+        public IVISABRequestHandler RequestHandler { get; }
 
         /// <summary>
         /// The unique identifier for the current session
@@ -88,10 +93,21 @@ namespace VISABConnector
         public static VISABApi InitiateSession(string game)
         {
             var conn = new VISABApi(game, Guid.NewGuid());
-            if (conn.IsGameSupported(game) && conn.OpenSession())
+            if (conn.OpenSession())
                 return conn;
 
+            if (GameIsSupported(game) && conn.OpenSession())
+                return conn;
+
+            if (!GameIsSupported(game))
+                throw new Exception($"Game[{game}] is not supported by the VISAB Api!");
+
             return default;
+        }
+
+        public static void StartVISAB(string pathToVisab)
+        {
+            // TODO: Start VISAB
         }
 
         /// <summary>
@@ -100,7 +116,7 @@ namespace VISABConnector
         /// <returns></returns>
         public bool CloseSession()
         {
-            CloseEvent?.Invoke(this, new ClosingEventArgs { RequestHandler = RequestHandler });
+            CloseSessionEvent?.Invoke(this, new ClosingEventArgs { RequestHandler = RequestHandler });
 
             return RequestHandler.GetSuccessResponse(HttpMethod.Get, ENDPOINT_SESSION_CLOSE, null, null);
         }
@@ -115,9 +131,10 @@ namespace VISABConnector
         /// </summary>
         /// <param name="game">The game to check</param>
         /// <returns>True if game is supported, false else</returns>
-        public bool IsGameSupported(string game)
+        public static bool GameIsSupported(string game)
         {
-            var supportedGames = RequestHandler.GetDeserializedResponse<List<string>>(HttpMethod.Get, ENDPOINT_GAME_SUPPORTED, null, null);
+            var handler = new VISABRequestHandler(null, Guid.Empty);
+            var supportedGames = handler.GetDeserializedResponse<List<string>>(HttpMethod.Get, ENDPOINT_GAME_SUPPORTED, null, null);
 
             return supportedGames.Contains(game);
         }

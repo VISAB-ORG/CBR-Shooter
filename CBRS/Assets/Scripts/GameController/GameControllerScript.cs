@@ -9,6 +9,9 @@ using Assets.Scripts.AI;
 using UnityEngine.AI;
 using Assets.Scripts;
 using Assets.Scripts.VISAB;
+using VISABConnector;
+using System.Threading.Tasks;
+using System.Threading;
 
 /**
  * Dieses Skript stellt den zentralen Bezugspunkt des Programmes dar, an dem alle relevanten Daten gespeichert sind.
@@ -250,6 +253,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Unity Methode, die beim Aufruf des Skripts *einmalig* ausgeführt wird.
      */
+
     private void Awake()
     {
         // C.W.: Initialize the round timer with duration on every start of a new round
@@ -350,6 +354,10 @@ public class GameControllerScript : MonoBehaviour
         {
             mCampingPositionTransforms.Add(mCampingPosition.transform.GetChild(i));
         }
+
+        // Start VISAB api transmission
+        visabLoopCancellationTokenSource = new CancellationTokenSource();
+        StartVISABLoop(visabLoopCancellationTokenSource.Token);
     }
 
     /**
@@ -359,10 +367,56 @@ public class GameControllerScript : MonoBehaviour
     {
         bool withWindow = true;
         Constants.StartServer(withWindow);
-        Constants.StartPathViewerServer(withWindow);
+        // Constants.StartPathViewerServer(withWindow);
         mAgentController = new AgentController();
         mAgentController.StartAgentPortal();
     }
+
+    private void StartVISABLoop(CancellationToken cancellationToken)
+    {
+        var visabApi = VISABApi.InitiateSession("CBRShooter");
+        if (visabApi == default)
+        {
+            Debug.Log("Couldent initialize connection!");
+            VISABApi.StartVISAB("TODO:path");
+            visabApi = VISABApi.InitiateSession("CBRShooter");
+        }
+
+        new Thread(async () =>
+        {
+            while (true)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    visabApi.CloseSession();
+                    break;
+                }
+
+                if (mState == GameState.RUNNING)
+                {
+                    if (visabStatistics != null)
+                        visabApi.SendStatistics(visabStatistics);
+                    Debug.Log(visabStatistics);
+                }
+                Debug.Log("XD");
+                await Task.Delay(updateDelay);
+            }
+        }).Start();
+    }
+    #region VISAB variables
+    /// <summary>
+    /// Cancellation Token to cancel the loop of sending data to VISAB
+    /// </summary>
+    private CancellationTokenSource visabLoopCancellationTokenSource;
+
+    /// <summary>
+    /// The delay inbetween sending statistics to VISAB in miliseconds
+    /// </summary>
+    private const int updateDelay = 100;
+
+    private VISABStatistics visabStatistics;
+
+    #endregion
 
     /*
      * C.W.: Method to end a round. Is used when the roundtime is up.
@@ -458,6 +512,8 @@ public class GameControllerScript : MonoBehaviour
     */
     public static void StartNewRound()
     {
+
+
         // C.W.: initialize the round timer with set RoundDuration on every start of a new round
         mRoundTimer = mRoundDuration;
         // Counts the rounds
@@ -713,6 +769,31 @@ public class GameControllerScript : MonoBehaviour
 
         restartPickUpTimer();
         checkInput();
+
+        SetGameInformation();
+        SetVISABStatistics();
+        // Debug.Log($"Human controlled guy is null?{mHumanControlled == null}");
+    }
+
+    private void SetVISABStatistics()
+    {
+        visabStatistics = VISABHelper.GetCurrentStatistics();
+    }
+
+    private void SetGameInformation()
+    {
+        var players = CommonUnityFunctions.GetBotPlayersCorrectly();
+
+        GameInformation = new GameInformation
+        {
+            AmmunitionPosition = ammuPositionRaw,
+            CBRPlayer = players.Item1,
+            NonCBRPlayer = players.Item2,
+            GameState = mState,
+            HealthPosition = healthPositionRaw,
+            RoundCounter = roundCounter,
+            WeaponPosition = weaponPositionRaw
+        };
     }
 
     /*
@@ -799,6 +880,7 @@ public class GameControllerScript : MonoBehaviour
             }
 
             mGameMenueScript.ToggleGameMenue();
+            visabLoopCancellationTokenSource.Cancel();
         }
 
         if (Input.GetButtonDown("Tab")) // GetButton(...)
@@ -852,7 +934,9 @@ public class GameControllerScript : MonoBehaviour
      */
     private void OnApplicationQuit()
     {
+        visabLoopCancellationTokenSource.Cancel();
         Constants.proc.Kill();
+        Thread.Sleep(5 * updateDelay);
     }
 
     /**
@@ -1012,64 +1096,4 @@ public class GameControllerScript : MonoBehaviour
             }
         }
     }
-
-    #region Http VISAB communication
-    /// <summary>
-    /// </summary>
-    /// <param name="player"></param>
-    /// <returns></returns>
-    private Assets.Scripts.VISAB.PlayerInformation ExtractPlayerInformation(Player player)
-    {
-        return new Assets.Scripts.VISAB.PlayerInformation
-        {
-            Health = (uint)player.mPlayerHealth,
-            RelativeHealth = (float)player.mPlayerHealth / (float)Player.mMaxLife,
-            MagazineAmmunition = (uint)player.mEquippedWeapon.mCurrentMagazineAmmu,
-            Name = player.mName,
-            Plan = player.mPlan.ToString(),
-            Weapon = player.mEquippedWeapon.ToString(),
-            Statistics = new Assets.Scripts.VISAB.PlayerStatistics
-            {
-                Deaths = (uint)player.mStatistics.DeathCount(),
-                Frags = (uint)player.mStatistics.FragCount(),
-            },
-            Position = UnityVectorConverter(player.GetPlayerPosition())
-        };
-    }
-
-    /// <summary>
-    /// New method signature: VISABConnector.SendStatistics<T>(T statistics) where T : IVISABStatistics
-    /// </summary>
-    private void SendStatisticsNEW()
-    {
-        var gameInformation = GameControllerScript.GameInformation;
-
-        var visabStatistics = new Assets.Scripts.VISAB.VISABStatistics
-        {
-            CBRPlayer = ExtractPlayerInformation(gameInformation.CBRPlayer),
-            ScriptPlayer = ExtractPlayerInformation(gameInformation.NonCBRPlayer),
-            AmmunitionPosition = UnityVectorConverter(gameInformation.AmmunitionPosition),
-            HealthPosition = UnityVectorConverter(gameInformation.HealthPosition),
-            WeaponPosition = UnityVectorConverter(gameInformation.WeaponPosition),
-            Round = gameInformation.RoundCounter
-        };
-    }
-
-    /// <summary>
-    /// Transforms a Unity Vector3 struct into a System.Numerics.Vector3
-    /// </summary>
-    /// <param name="unityVector">The unity vector</param>
-    /// <returns></returns>
-    private System.Numerics.Vector3 UnityVectorConverter(Vector3 unityVector)
-    {
-        return new System.Numerics.Vector3
-        {
-            X = unityVector.x,
-            Y = unityVector.y,
-            Z = unityVector.z
-        };
-    }
-
-    #endregion
-
 }

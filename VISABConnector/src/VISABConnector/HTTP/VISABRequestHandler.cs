@@ -5,18 +5,18 @@ using System.Net.Http;
 
 namespace VISABConnector
 {
-    public class VISABRequestHandler : RequestHandlerBase, IVisabRequestHandler
+    public class VISABRequestHandler : RequestHandlerBase, IVISABRequestHandler
     {
         private readonly JsonSerializerSettings serializerSettings;
 
-        public VISABRequestHandler(string game, Guid sessionId) : base(Default.VISABBaseAdress)
+        public VISABRequestHandler(string gameHeader, Guid sessionIdHeader) : base(Default.VISABBaseAdress)
         {
-            httpClient.DefaultRequestHeaders.Add("game", game);
-            httpClient.DefaultRequestHeaders.Add("sessionId", sessionId.ToString());
+            httpClient.DefaultRequestHeaders.Add("game", gameHeader);
+            httpClient.DefaultRequestHeaders.Add("sessionid", sessionIdHeader.ToString());
 
             serializerSettings = new JsonSerializerSettings
             {
-                ContractResolver = new IgnorePropertyContractResolver<DontSerialize>(),
+                // ContractResolver = new IgnorePropertyContractResolver<DontSerialize>(),
                 Formatting = Formatting.Indented
             };
         }
