@@ -772,7 +772,6 @@ public class GameControllerScript : MonoBehaviour
 
         SetGameInformation();
         SetVISABStatistics();
-        // Debug.Log($"Human controlled guy is null?{mHumanControlled == null}");
     }
 
     private void SetVISABStatistics()
@@ -880,7 +879,7 @@ public class GameControllerScript : MonoBehaviour
             }
 
             mGameMenueScript.ToggleGameMenue();
-            visabLoopCancellationTokenSource.Cancel();
+            // If the MainMenue button is pressed
         }
 
         if (Input.GetButtonDown("Tab")) // GetButton(...)
