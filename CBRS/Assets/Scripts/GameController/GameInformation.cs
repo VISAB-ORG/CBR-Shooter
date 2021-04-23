@@ -10,6 +10,11 @@ using static GameControllerScript;
 public class GameInformation
 {
     /// <summary>
+    /// Get the time since the round has started in seconds
+    /// </summary>
+    public float RoundTime { get; set; }
+
+    /// <summary>
     /// Coordinates of spawned Ammunition Default if none on map
     /// </summary>
     public Vector3 AmmunitionPosition { get; set; }

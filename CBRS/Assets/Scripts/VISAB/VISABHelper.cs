@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Model;
+﻿using Assets.Scripts.AI;
+using Assets.Scripts.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,14 +32,20 @@ namespace Assets.Scripts.VISAB
         /// <returns></returns>
         private static PlayerInformation ExtractPlayerInformation(Player player)
         {
+            var plan = "";
+            if (!player.mCBR && BotBehaviourScript.ScriptBotPlan != null)
+                plan = BotBehaviourScript.ScriptBotPlan.ToString();
+            else if (player.mCBR && player.mPlan != null)
+                plan = player.mPlan.actionsAsString;
+
             return new PlayerInformation
             {
                 Health = (uint)player.mPlayerHealth,
                 RelativeHealth = (float)player.mPlayerHealth / (float)Player.mMaxLife,
                 MagazineAmmunition = (uint)player.mEquippedWeapon.mCurrentMagazineAmmu,
                 Name = player.mName,
-                Plan = player.mPlan != null ? player.mPlan.ToString() : "",
-                Weapon = player.mEquippedWeapon != null ? player.mEquippedWeapon.ToString() : "",
+                Plan = plan,
+                Weapon = player.mEquippedWeapon.mName,
                 Statistics = new PlayerStatistics
                 {
                     Deaths = (uint)player.mStatistics.DeathCount(),
@@ -57,6 +64,7 @@ namespace Assets.Scripts.VISAB
 
             return new VISABStatistics
             {
+                RoundTime = gameInformation.RoundTime,
                 CBRPlayer = ExtractPlayerInformation(gameInformation.CBRPlayer),
                 ScriptPlayer = ExtractPlayerInformation(gameInformation.NonCBRPlayer),
                 AmmunitionPosition = Vector3ToVector2(gameInformation.AmmunitionPosition),

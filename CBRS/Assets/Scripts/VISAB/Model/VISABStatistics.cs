@@ -9,6 +9,11 @@ namespace Assets.Scripts.VISAB
     public class VISABStatistics : IVISABStatistics
     {
         /// <summary>
+        /// The time in seconds since the round has begun
+        /// </summary>
+        public float RoundTime { get; set; }
+
+        /// <summary>
         /// The position of the ammunition item
         /// </summary>
         public Vector2 AmmunitionPosition { get; set; }

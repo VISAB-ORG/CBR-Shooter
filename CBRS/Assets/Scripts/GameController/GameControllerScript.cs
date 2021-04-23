@@ -12,6 +12,7 @@ using Assets.Scripts.VISAB;
 using VISABConnector;
 using System.Threading.Tasks;
 using System.Threading;
+using System.ComponentModel;
 
 /**
  * Dieses Skript stellt den zentralen Bezugspunkt des Programmes dar, an dem alle relevanten Daten gespeichert sind.
@@ -372,25 +373,25 @@ public class GameControllerScript : MonoBehaviour
         mAgentController.StartAgentPortal();
     }
 
-    private void StartVISABLoop(CancellationToken cancellationToken)
+    private async Task StartVISABLoop(CancellationToken cancellationToken)
     {
         var visabApi = VISABApi.InitiateSession("CBRShooter");
         if (visabApi == default)
         {
             Debug.Log("Couldent initialize connection!");
+            // TODO: Put VISAB somewhere.
             VISABApi.StartVISAB("TODO:path");
             visabApi = VISABApi.InitiateSession("CBRShooter");
         }
 
-        new Thread(async () =>
+        // Starts an infinite loop in another thread.
+        // The thread is killed, once the cancellationToken is canceled.
+        await Task.Run(async () =>
         {
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
-                {
-                    visabApi.CloseSession();
                     break;
-                }
 
                 if (mState == GameState.RUNNING)
                 {
@@ -398,10 +399,12 @@ public class GameControllerScript : MonoBehaviour
                         visabApi.SendStatistics(visabStatistics);
                     Debug.Log(visabStatistics);
                 }
-                Debug.Log("XD");
                 await Task.Delay(updateDelay);
             }
-        }).Start();
+        });
+        // Close the VISAB api session
+        Debug.Log($"Closing VISAB session with id {visabApi.SessionId}!");
+        visabApi.CloseSession();
     }
     #region VISAB variables
     /// <summary>
@@ -785,6 +788,7 @@ public class GameControllerScript : MonoBehaviour
 
         GameInformation = new GameInformation
         {
+            RoundTime = mRoundDuration - mRoundTimer,
             AmmunitionPosition = ammuPositionRaw,
             CBRPlayer = players.Item1,
             NonCBRPlayer = players.Item2,
