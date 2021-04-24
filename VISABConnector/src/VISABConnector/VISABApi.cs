@@ -88,13 +88,10 @@ namespace VISABConnector
         /// <returns>True if game is supported, false else</returns>
         public static async Task<bool> GameIsSupported(string game)
         {
-            /*
             var handler = new VISABRequestHandler(null, Guid.Empty);
             var supportedGames = await handler.GetDeserializedResponseAsync<List<string>>(HttpMethod.Get, ENDPOINT_GAME_SUPPORTED, null, null).ConfigureAwait(false);
 
             return await Task.Run(() => supportedGames.Contains(game)).ConfigureAwait(false);
-            */
-            return true;
         }
 
         /// <summary>
@@ -105,10 +102,7 @@ namespace VISABConnector
         public static async Task<VISABApi> InitiateSession(string game)
         {
             var conn = new VISABApi(game, Guid.NewGuid());
-            if (await conn.OpenSession())
-                return conn;
 
-            // TODO: Implement endpoint in visab api for game supported
             if (await GameIsSupported(game) && await conn.OpenSession())
                 return conn;
 
