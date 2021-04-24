@@ -7,12 +7,9 @@ namespace VISABConnector
     /// </summary>
     public static class Default
     {
-        public static readonly Encoding Encoding = Encoding.UTF8;
-
-        public static readonly string ContentMediaType = "application/json";
-
-        public static readonly string VISABBaseAdress = $"http://localhost:{PORT}";
-
         public const int PORT = 2673;
+        public static readonly string ContentMediaType = "application/json";
+        public static readonly Encoding Encoding = Encoding.UTF8;
+        public static readonly string VISABBaseAdress = $"http://localhost:{PORT}";
     }
 }

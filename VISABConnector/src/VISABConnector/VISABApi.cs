@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace VISABConnector
 {
     /// <summary>
     /// Class for communicating with the VISAB api running in the java project
     /// </summary>
-    public class VISABApi : IDisposable
+    public class VISABApi
     {
         #region VISAB API relative endpoints
 
@@ -71,11 +72,6 @@ namespace VISABConnector
         public string Game { get; }
 
         /// <summary>
-        /// Indicates if the VISAB api (web api in java project) is running
-        /// </summary>
-        public bool IsReachable => RequestHandler.GetSuccessResponse(HttpMethod.Get, ENDPOINT_PING_TEST, null, null);
-
-        /// <summary>
         /// The RequestHandler used by the VISABApi object
         /// </summary>
         public IVISABRequestHandler RequestHandler { get; }
@@ -86,25 +82,43 @@ namespace VISABConnector
         public Guid SessionId { get; }
 
         /// <summary>
+        /// Indicates if the VISAB api can receive data for the game
+        /// </summary>
+        /// <param name="game">The game to check</param>
+        /// <returns>True if game is supported, false else</returns>
+        public static async Task<bool> GameIsSupported(string game)
+        {
+            var handler = new VISABRequestHandler(null, Guid.Empty);
+            var supportedGames = await handler.GetDeserializedResponseAsync<List<string>>(HttpMethod.Get, ENDPOINT_GAME_SUPPORTED, null, null).ConfigureAwait(false);
+
+            return await Task.Run(() => supportedGames.Contains(game)).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Creates a VISABApi object
         /// </summary>
         /// <param name="game">The game of which to sent data</param>
         /// <returns>A VISABApi object if the VISAB api is running, else null</returns>
-        public static VISABApi InitiateSession(string game)
+        public static async Task<VISABApi> InitiateSession(string game)
         {
             var conn = new VISABApi(game, Guid.NewGuid());
-            if (conn.OpenSession())
+            if (await conn.OpenSession())
                 return conn;
 
-            if (GameIsSupported(game) && conn.OpenSession())
+            // TODO: Implement endpoint in visab api for game supported
+            if (await GameIsSupported(game) && await conn.OpenSession())
                 return conn;
 
-            if (!GameIsSupported(game))
+            if (!await GameIsSupported(game))
                 throw new Exception($"Game[{game}] is not supported by the VISAB Api!");
 
             return default;
         }
 
+        /// <summary>
+        /// Starts the VISAB jar
+        /// </summary>
+        /// <param name="pathToVisab">The path to the jar file</param>
         public static void StartVISAB(string pathToVisab)
         {
             // TODO: Start VISAB
@@ -114,29 +128,19 @@ namespace VISABConnector
         /// Closes the session in the VISAB api
         /// </summary>
         /// <returns></returns>
-        public bool CloseSession()
+        public async Task<bool> CloseSession()
         {
-            CloseSessionEvent?.Invoke(this, new ClosingEventArgs { RequestHandler = RequestHandler });
+            await Task.Run(() => CloseSessionEvent?.Invoke(this, new ClosingEventArgs { RequestHandler = RequestHandler })).ConfigureAwait(false);
 
-            return RequestHandler.GetSuccessResponse(HttpMethod.Get, ENDPOINT_SESSION_CLOSE, null, null);
+            return await RequestHandler.GetSuccessResponseAsync(HttpMethod.Get, ENDPOINT_SESSION_CLOSE, null, null).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Close the session upon disposing
+        /// Indicates if the VISAB api (web api in java project) is running
         /// </summary>
-        public void Dispose() => CloseSession();
-
-        /// <summary>
-        /// Indicates if the VISAB api can receive data for the game
-        /// </summary>
-        /// <param name="game">The game to check</param>
-        /// <returns>True if game is supported, false else</returns>
-        public static bool GameIsSupported(string game)
+        public async Task<bool> IsReachable()
         {
-            var handler = new VISABRequestHandler(null, Guid.Empty);
-            var supportedGames = handler.GetDeserializedResponse<List<string>>(HttpMethod.Get, ENDPOINT_GAME_SUPPORTED, null, null);
-
-            return supportedGames.Contains(game);
+            return await RequestHandler.GetSuccessResponseAsync(HttpMethod.Get, ENDPOINT_PING_TEST, null, null).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -145,18 +149,18 @@ namespace VISABConnector
         /// <typeparam name="T">The type inheriting IVISABStatistics</typeparam>
         /// <param name="statistics">The statistics bject of type T</param>
         /// <returns></returns>
-        public bool SendStatistics<T>(T statistics) where T : IVISABStatistics
+        public async Task<bool> SendStatistics<T>(T statistics) where T : IVISABStatistics
         {
-            return RequestHandler.GetSuccessResponse(HttpMethod.Post, ENDPOINT_STATISTICS, null, statistics);
+            return await RequestHandler.GetSuccessResponseAsync(HttpMethod.Post, ENDPOINT_STATISTICS, null, statistics).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Opens a session in the VISAB api
         /// </summary>
         /// <returns></returns>
-        private bool OpenSession()
+        private async Task<bool> OpenSession()
         {
-            return RequestHandler.GetSuccessResponse(HttpMethod.Get, ENDPOINT_SESSION_OPEN, null, null);
+            return await RequestHandler.GetSuccessResponseAsync(HttpMethod.Get, ENDPOINT_SESSION_OPEN, null, null).ConfigureAwait(false);
         }
     }
 }

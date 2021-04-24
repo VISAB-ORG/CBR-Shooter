@@ -2,13 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace VISABConnector
 {
+    ///<inheritdoc cref="IVISABRequestHandler"/>
     public class VISABRequestHandler : RequestHandlerBase, IVISABRequestHandler
     {
         private readonly JsonSerializerSettings serializerSettings;
 
+        /// <summary>
+        /// Initializes a VISABRequestHandler object
+        /// </summary>
+        /// <param name="gameHeader">The game for which information will be sent</param>
+        /// <param name="sessionIdHeader">The sessionId of the current tranmission session</param>
         public VISABRequestHandler(string gameHeader, Guid sessionIdHeader) : base(Default.VISABBaseAdress)
         {
             httpClient.DefaultRequestHeaders.Add("game", gameHeader);
@@ -16,47 +23,57 @@ namespace VISABConnector
 
             serializerSettings = new JsonSerializerSettings
             {
-                // ContractResolver = new IgnorePropertyContractResolver<DontSerialize>(),
+                ContractResolver = new IgnorePropertyContractResolver<DontSerialize>(),
                 Formatting = Formatting.Indented
             };
         }
 
-        public TResponse GetDeserializedResponse<TResponse>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters = null, string body = null)
+        ///<inheritdoc/>
+        public async Task<TResponse> GetDeserializedResponseAsync<TResponse>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters = null, string body = null)
         {
-            var jsonResponse = GetJsonResponse(httpMethod, relativeUrl, queryParameters, body);
+            var jsonResponse = await GetJsonResponseAsync(httpMethod, relativeUrl, queryParameters, body).ConfigureAwait(false);
 
-            return JsonConvert.DeserializeObject<TResponse>(jsonResponse);
+            return await Task.Run(() => JsonConvert.DeserializeObject<TResponse>(jsonResponse)).ConfigureAwait(false);
         }
 
-        public TResponse GetDeserializedResponse<TBody, TResponse>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, TBody body)
+        ///<inheritdoc/>
+        public async Task<TResponse> GetDeserializedResponseAsync<TBody, TResponse>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, TBody body)
         {
-            var jsonResponse = GetJsonResponse(httpMethod, relativeUrl, queryParameters, body);
+            var jsonResponse = await GetJsonResponseAsync(httpMethod, relativeUrl, queryParameters, body).ConfigureAwait(false);
 
-            return JsonConvert.DeserializeObject<TResponse>(jsonResponse);
+            return await Task.Run(() => JsonConvert.DeserializeObject<TResponse>(jsonResponse)).ConfigureAwait(false);
         }
 
-        public string GetJsonResponse(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, string body)
+        ///<inheritdoc/>
+        public async Task<string> GetJsonResponseAsync(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, string body)
         {
-            return GetResponse(httpMethod, relativeUrl, queryParameters, body).Content.ReadAsStringAsync().Result;
+            var response = await GetResponseAsync(httpMethod, relativeUrl, queryParameters, body).ConfigureAwait(false);
+
+            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         }
 
-        public string GetJsonResponse<TBody>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, TBody body)
+        ///<inheritdoc/>
+        public async Task<string> GetJsonResponseAsync<TBody>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, TBody body)
         {
-            var json = JsonConvert.SerializeObject(body, serializerSettings);
+            var json = await Task.Run(() => JsonConvert.SerializeObject(body, serializerSettings)).ConfigureAwait(false);
 
-            return GetJsonResponse(httpMethod, relativeUrl, queryParameters, json);
+            return await GetJsonResponseAsync(httpMethod, relativeUrl, queryParameters, json).ConfigureAwait(false);
         }
 
-        public bool GetSuccessResponse(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, string body)
+        ///<inheritdoc/>
+        public async Task<bool> GetSuccessResponseAsync(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, string body)
         {
-            return GetResponse(httpMethod, relativeUrl, queryParameters, body).IsSuccessStatusCode;
+            var response = await GetResponseAsync(httpMethod, relativeUrl, queryParameters, body).ConfigureAwait(false);
+
+            return await Task.Run(() => response.IsSuccessStatusCode).ConfigureAwait(false);
         }
 
-        public bool GetSuccessResponse<TBody>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, TBody body)
+        ///<inheritdoc/>
+        public async Task<bool> GetSuccessResponseAsync<TBody>(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters, TBody body)
         {
-            var json = JsonConvert.SerializeObject(body, serializerSettings);
+            var json = await Task.Run(() => JsonConvert.SerializeObject(body, serializerSettings)).ConfigureAwait(false);
 
-            return GetSuccessResponse(httpMethod, relativeUrl, queryParameters, json);
+            return await GetSuccessResponseAsync(httpMethod, relativeUrl, queryParameters, json).ConfigureAwait(false);
         }
     }
 }
