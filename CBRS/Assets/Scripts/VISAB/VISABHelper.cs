@@ -1,29 +1,87 @@
 ﻿using Assets.Scripts.AI;
 using Assets.Scripts.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using VISABConnector;
+using static GameControllerScript;
 
 namespace Assets.Scripts.VISAB
 {
     public static class VISABHelper
     {
         /// <summary>
-        /// Transforms a Unity Vector3 struct into a System.Numerics.Vector2
-        /// The Unity Vector3 y coordinate is thrown away, with its z property becoming the new Y.
+        /// The delay inbetween sending statistics to VISAB in miliseconds
         /// </summary>
-        /// <param name="unityVector">The unity vector</param>
-        /// <returns></returns>
-        private static System.Numerics.Vector2 Vector3ToVector2(Vector3 unityVector)
+        public const int UpdateDelay = 100;
+
+        public static VISABStatistics GetCurrentStatistics()
         {
-            return new System.Numerics.Vector2
+            var gameInformation = GameControllerScript.GameInformation;
+
+            if (gameInformation == null)
+                return null;
+
+            return new VISABStatistics
             {
-                X = unityVector.x,
-                Y = unityVector.z
+                RoundTime = gameInformation.RoundTime,
+                CBRPlayer = ExtractPlayerInformation(gameInformation.CBRPlayer),
+                ScriptPlayer = ExtractPlayerInformation(gameInformation.NonCBRPlayer),
+                AmmunitionPosition = Vector3ToVector2(gameInformation.AmmunitionPosition),
+                HealthPosition = Vector3ToVector2(gameInformation.HealthPosition),
+                WeaponPosition = Vector3ToVector2(gameInformation.WeaponPosition),
+                Round = gameInformation.RoundCounter
             };
+        }
+
+        /// <summary>
+        /// Initiates the infinite loop that sends information to the VISAB api. The loop is stopped
+        /// if the given cancellationToken is canceled.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellationToken</param>
+        /// <returns>An awaitable Task</returns>
+        public static async Task StartVISABLoop(CancellationToken cancellationToken)
+        {
+            // Initializes the VISAB transmission session
+            var visabApi = await VISABApi.InitiateSession("CBRShooter");
+            if (visabApi == default)
+            {
+                await Task.Run(async () =>
+                {
+                    while (visabApi == default)
+                    {
+                        Debug.Log("Couldent initialize VISAB api connection!");
+                        VISABApi.StartVISAB("TODO:path");
+                        visabApi = await VISABApi.InitiateSession("CBRShooter");
+                    }
+                });
+            }
+
+            // Starts an infinite loop in another thread. The thread is killed, once the
+            // cancellationToken is canceled.
+            await Task.Run(async () =>
+            {
+                while (true)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
+
+                    if (GameControllerScript.GameInformation.GameState == GameState.RUNNING)
+                    {
+                        var statistics = GameControllerScript.VisabStatistics;
+                        if (statistics != null)
+                        {
+                            await visabApi.SendStatistics(statistics);
+                            Debug.Log($"Send statistics to VISAB! Round:{statistics.Round}, Time: {statistics.RoundTime}");
+                        }
+                    }
+                    await Task.Delay(UpdateDelay);
+                }
+            });
+
+            // Close the VISAB api session
+            Debug.Log($"Closing VISAB session with id {visabApi.SessionId}!");
+            await visabApi.CloseSession();
         }
 
         /// <summary>
@@ -55,22 +113,18 @@ namespace Assets.Scripts.VISAB
             };
         }
 
-        public static VISABStatistics GetCurrentStatistics()
+        /// <summary>
+        /// Transforms a Unity Vector3 struct into a System.Numerics.Vector2 The Unity Vector3 y
+        /// coordinate is thrown away, with its z property becoming the new Y.
+        /// </summary>
+        /// <param name="unityVector">The unity vector</param>
+        /// <returns></returns>
+        private static System.Numerics.Vector2 Vector3ToVector2(Vector3 unityVector)
         {
-            var gameInformation = GameControllerScript.GameInformation;
-
-            if (gameInformation == null)
-                return null;
-
-            return new VISABStatistics
+            return new System.Numerics.Vector2
             {
-                RoundTime = gameInformation.RoundTime,
-                CBRPlayer = ExtractPlayerInformation(gameInformation.CBRPlayer),
-                ScriptPlayer = ExtractPlayerInformation(gameInformation.NonCBRPlayer),
-                AmmunitionPosition = Vector3ToVector2(gameInformation.AmmunitionPosition),
-                HealthPosition = Vector3ToVector2(gameInformation.HealthPosition),
-                WeaponPosition = Vector3ToVector2(gameInformation.WeaponPosition),
-                Round = gameInformation.RoundCounter
+                X = unityVector.x,
+                Y = unityVector.z
             };
         }
     }

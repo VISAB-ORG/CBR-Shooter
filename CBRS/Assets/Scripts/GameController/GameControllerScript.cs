@@ -358,7 +358,7 @@ public class GameControllerScript : MonoBehaviour
 
         // Start VISAB api transmission
         visabLoopCancellationTokenSource = new CancellationTokenSource();
-        StartVISABLoop(visabLoopCancellationTokenSource.Token);
+        VISABHelper.StartVISABLoop(visabLoopCancellationTokenSource.Token);
     }
 
     /**
@@ -372,52 +372,18 @@ public class GameControllerScript : MonoBehaviour
         mAgentController = new AgentController();
         mAgentController.StartAgentPortal();
     }
-
-    private async Task StartVISABLoop(CancellationToken cancellationToken)
-    {
-        var visabApi = VISABApi.InitiateSession("CBRShooter");
-        if (visabApi == default)
-        {
-            Debug.Log("Couldent initialize connection!");
-            // TODO: Put VISAB somewhere.
-            VISABApi.StartVISAB("TODO:path");
-            visabApi = VISABApi.InitiateSession("CBRShooter");
-        }
-
-        // Starts an infinite loop in another thread.
-        // The thread is killed, once the cancellationToken is canceled.
-        await Task.Run(async () =>
-        {
-            while (true)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    break;
-
-                if (mState == GameState.RUNNING)
-                {
-                    if (visabStatistics != null)
-                        visabApi.SendStatistics(visabStatistics);
-                    Debug.Log(visabStatistics);
-                }
-                await Task.Delay(updateDelay);
-            }
-        });
-        // Close the VISAB api session
-        Debug.Log($"Closing VISAB session with id {visabApi.SessionId}!");
-        visabApi.CloseSession();
-    }
+    
     #region VISAB variables
+    
     /// <summary>
     /// Cancellation Token to cancel the loop of sending data to VISAB
     /// </summary>
     private CancellationTokenSource visabLoopCancellationTokenSource;
 
     /// <summary>
-    /// The delay inbetween sending statistics to VISAB in miliseconds
+    /// The VISABStatistics object, holding the information that will be sent to VISAB
     /// </summary>
-    private const int updateDelay = 100;
-
-    private VISABStatistics visabStatistics;
+    public static VISABStatistics VisabStatistics { get; private set; }
 
     #endregion
 
@@ -779,7 +745,7 @@ public class GameControllerScript : MonoBehaviour
 
     private void SetVISABStatistics()
     {
-        visabStatistics = VISABHelper.GetCurrentStatistics();
+        VisabStatistics = VISABHelper.GetCurrentStatistics();
     }
 
     private void SetGameInformation()
@@ -933,13 +899,13 @@ public class GameControllerScript : MonoBehaviour
     }
 
     /**
-     * Diese Unity-Methode wird beim Verlassen des Programms ausgeführt. Hier wird die Java-Applikation beendet.
+     * Diese Unity-Methode wird beim Verlassen des Programms ausgeführt. Hier wird die Java-CBR Applikation beendet.
      */
     private void OnApplicationQuit()
     {
         visabLoopCancellationTokenSource.Cancel();
         Constants.proc.Kill();
-        Thread.Sleep(5 * updateDelay);
+        Thread.Sleep(5 * VISABHelper.UpdateDelay);
     }
 
     /**

@@ -88,10 +88,13 @@ namespace VISABConnector
         /// <returns>True if game is supported, false else</returns>
         public static async Task<bool> GameIsSupported(string game)
         {
+            /*
             var handler = new VISABRequestHandler(null, Guid.Empty);
             var supportedGames = await handler.GetDeserializedResponseAsync<List<string>>(HttpMethod.Get, ENDPOINT_GAME_SUPPORTED, null, null).ConfigureAwait(false);
 
             return await Task.Run(() => supportedGames.Contains(game)).ConfigureAwait(false);
+            */
+            return true;
         }
 
         /// <summary>
