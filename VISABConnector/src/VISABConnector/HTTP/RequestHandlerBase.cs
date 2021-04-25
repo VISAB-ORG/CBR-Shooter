@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace VISABConnector
@@ -39,7 +41,23 @@ namespace VISABConnector
         /// <returns>The HttpResponseMessage object</returns>
         public async Task<HttpResponseMessage> GetResponseAsync(HttpMethod httpMethod, string relativeUrl, IEnumerable<string> queryParameters = null, string body = null)
         {
-            return await httpClient.SendAsync(PrepareRequest(httpMethod, relativeUrl, queryParameters, body)).ConfigureAwait(false);
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(Default.REQUEST_TIMEOUT));
+
+            var request = PrepareRequest(httpMethod, relativeUrl, queryParameters, body);
+            try
+            {
+                return await httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            }
+            catch (HttpRequestException e)
+            {
+                return new HttpResponseMessage
+                {
+                    RequestMessage = request,
+                    ReasonPhrase = $"[VISABConnector] Failed to make request to VISAB api. Error: {e}",
+                    StatusCode = System.Net.HttpStatusCode.BadGateway
+                };
+            }
         }
 
         /// <summary>
@@ -75,6 +93,19 @@ namespace VISABConnector
                 request.Content = new StringContent(body, Default.Encoding, Default.ContentMediaType);
 
             return request;
+        }
+
+        /// <summary>
+        /// Reads the content from a HttpResponseMessage
+        /// </summary>
+        /// <param name="httpResponse">The HttpResponseMessage to read the content from</param>
+        /// <returns>The content as a string, empty string if request wasn't successful</returns>
+        protected static async Task<string> GetResponseContentAsync(HttpResponseMessage httpResponse)
+        {
+            if (httpResponse.IsSuccessStatusCode)
+                return await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+            else
+                return "";
         }
     }
 }

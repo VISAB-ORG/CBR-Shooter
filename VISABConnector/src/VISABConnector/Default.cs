@@ -7,7 +7,16 @@ namespace VISABConnector
     /// </summary>
     public static class Default
     {
+        /// <summary>
+        /// The port that VISAB is running on
+        /// </summary>
         public const int PORT = 2673;
+
+        /// <summary>
+        /// Timeout for HTTP Requests in seconds
+        /// </summary>
+        public const int REQUEST_TIMEOUT = 2;
+
         public static readonly string ContentMediaType = "application/json";
         public static readonly Encoding Encoding = Encoding.UTF8;
         public static readonly string VISABBaseAdress = $"http://localhost:{PORT}";

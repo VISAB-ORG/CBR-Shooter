@@ -33,7 +33,10 @@ namespace VISABConnector
         {
             var jsonResponse = await GetJsonResponseAsync(httpMethod, relativeUrl, queryParameters, body).ConfigureAwait(false);
 
-            return await Task.Run(() => JsonConvert.DeserializeObject<TResponse>(jsonResponse)).ConfigureAwait(false);
+            if (jsonResponse != "")
+                return await Task.Run(() => JsonConvert.DeserializeObject<TResponse>(jsonResponse)).ConfigureAwait(false);
+
+            return default;
         }
 
         ///<inheritdoc/>
@@ -41,7 +44,10 @@ namespace VISABConnector
         {
             var jsonResponse = await GetJsonResponseAsync(httpMethod, relativeUrl, queryParameters, body).ConfigureAwait(false);
 
-            return await Task.Run(() => JsonConvert.DeserializeObject<TResponse>(jsonResponse)).ConfigureAwait(false);
+            if (jsonResponse != "")
+                return await Task.Run(() => JsonConvert.DeserializeObject<TResponse>(jsonResponse)).ConfigureAwait(false);
+
+            return default;
         }
 
         ///<inheritdoc/>
@@ -49,7 +55,7 @@ namespace VISABConnector
         {
             var response = await GetResponseAsync(httpMethod, relativeUrl, queryParameters, body).ConfigureAwait(false);
 
-            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return await GetResponseContentAsync(response).ConfigureAwait(false);
         }
 
         ///<inheritdoc/>
