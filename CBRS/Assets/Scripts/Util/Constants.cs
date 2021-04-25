@@ -276,6 +276,7 @@ namespace Assets.Scripts.Util
         public static void StartServer(bool window)
         {
             proc = new Process();
+            proc.StartInfo.WorkingDirectory = Environment.CurrentDirectory;
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.FileName = "java";
             proc.StartInfo.Arguments = "-jar " + SERVER_PATH + " " + PORT;
@@ -297,6 +298,7 @@ namespace Assets.Scripts.Util
         {
             proc = new Process();
             proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.WorkingDirectory = Environment.CurrentDirectory;
             proc.StartInfo.FileName = "java";
             proc.StartInfo.Arguments = "-jar " + "VISAB.jar" + " -mode headless -port " + 5558 + " -game shooter -out " + Environment.CurrentDirectory + @"\visab_files";
             if (!window)

@@ -1,26 +1,34 @@
 ﻿using System.Numerics;
+using VISABConnector;
 
 namespace Assets.Scripts.VISAB
 {
     /// <summary>
     /// TODO: Use relative vectors here?
     /// </summary>
-    public class VISABStatistics
+    public class VISABStatistics : IVISABStatistics
     {
+        /// <summary>
+        /// The time in seconds since the round has begun
+        /// </summary>
+        public float RoundTime { get; set; }
+
         /// <summary>
         /// The position of the ammunition item
         /// </summary>
-        public Vector3 AmmunitionPosition { get; set; }
+        public Vector2 AmmunitionPosition { get; set; }
 
         /// <summary>
         /// Information on the player object controlled by the CBR-system
         /// </summary>
         public VISAB.PlayerInformation CBRPlayer { get; set; }
 
+        public string Game => "CBRShooter";
+
         /// <summary>
         /// The position of the health item
         /// </summary>
-        public Vector3 HealthPosition { get; set; }
+        public Vector2 HealthPosition { get; set; }
 
         /// <summary>
         /// The current round
@@ -35,7 +43,7 @@ namespace Assets.Scripts.VISAB
         /// <summary>
         /// The position of the weapon item
         /// </summary>
-        public Vector3 WeaponPosition { get; set; }
+        public Vector2 WeaponPosition { get; set; }
 
         #region optional properties
 

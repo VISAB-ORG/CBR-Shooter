@@ -9,6 +9,10 @@ using Assets.Scripts.AI;
 using UnityEngine.AI;
 using Assets.Scripts;
 using Assets.Scripts.VISAB;
+using VISABConnector;
+using System.Threading.Tasks;
+using System.Threading;
+using System.ComponentModel;
 
 /**
  * Dieses Skript stellt den zentralen Bezugspunkt des Programmes dar, an dem alle relevanten Daten gespeichert sind.
@@ -250,6 +254,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Unity Methode, die beim Aufruf des Skripts *einmalig* ausgeführt wird.
      */
+
     private void Awake()
     {
         // C.W.: Initialize the round timer with duration on every start of a new round
@@ -350,6 +355,10 @@ public class GameControllerScript : MonoBehaviour
         {
             mCampingPositionTransforms.Add(mCampingPosition.transform.GetChild(i));
         }
+
+        // Start VISAB api transmission
+        visabLoopCancellationTokenSource = new CancellationTokenSource();
+        VISABHelper.StartVISABLoop(visabLoopCancellationTokenSource.Token);
     }
 
     /**
@@ -363,6 +372,20 @@ public class GameControllerScript : MonoBehaviour
         mAgentController = new AgentController();
         mAgentController.StartAgentPortal();
     }
+    
+    #region VISAB variables
+    
+    /// <summary>
+    /// Cancellation Token to cancel the loop of sending data to VISAB
+    /// </summary>
+    private CancellationTokenSource visabLoopCancellationTokenSource;
+
+    /// <summary>
+    /// The VISABStatistics object, holding the information that will be sent to VISAB
+    /// </summary>
+    public static VISABStatistics VisabStatistics { get; private set; }
+
+    #endregion
 
     /*
      * C.W.: Method to end a round. Is used when the roundtime is up.
@@ -458,6 +481,8 @@ public class GameControllerScript : MonoBehaviour
     */
     public static void StartNewRound()
     {
+
+
         // C.W.: initialize the round timer with set RoundDuration on every start of a new round
         mRoundTimer = mRoundDuration;
         // Counts the rounds
@@ -713,6 +738,31 @@ public class GameControllerScript : MonoBehaviour
 
         restartPickUpTimer();
         checkInput();
+
+        SetGameInformation();
+        SetVISABStatistics();
+    }
+
+    private void SetVISABStatistics()
+    {
+        VisabStatistics = VISABHelper.GetCurrentStatistics();
+    }
+
+    private void SetGameInformation()
+    {
+        var players = CommonUnityFunctions.GetBotPlayersCorrectly();
+
+        GameInformation = new GameInformation
+        {
+            RoundTime = mRoundDuration - mRoundTimer,
+            AmmunitionPosition = ammuPositionRaw,
+            CBRPlayer = players.Item1,
+            NonCBRPlayer = players.Item2,
+            GameState = mState,
+            HealthPosition = healthPositionRaw,
+            RoundCounter = roundCounter,
+            WeaponPosition = weaponPositionRaw
+        };
     }
 
     /*
@@ -799,6 +849,7 @@ public class GameControllerScript : MonoBehaviour
             }
 
             mGameMenueScript.ToggleGameMenue();
+            // If the MainMenue button is pressed
         }
 
         if (Input.GetButtonDown("Tab")) // GetButton(...)
@@ -848,11 +899,13 @@ public class GameControllerScript : MonoBehaviour
     }
 
     /**
-     * Diese Unity-Methode wird beim Verlassen des Programms ausgeführt. Hier wird die Java-Applikation beendet.
+     * Diese Unity-Methode wird beim Verlassen des Programms ausgeführt. Hier wird die Java-CBR Applikation beendet.
      */
     private void OnApplicationQuit()
     {
+        visabLoopCancellationTokenSource.Cancel();
         Constants.proc.Kill();
+        Thread.Sleep(5 * VISABHelper.UpdateDelay);
     }
 
     /**
@@ -1012,64 +1065,4 @@ public class GameControllerScript : MonoBehaviour
             }
         }
     }
-
-    #region Http VISAB communication
-    /// <summary>
-    /// </summary>
-    /// <param name="player"></param>
-    /// <returns></returns>
-    private Assets.Scripts.VISAB.PlayerInformation ExtractPlayerInformation(Player player)
-    {
-        return new Assets.Scripts.VISAB.PlayerInformation
-        {
-            Health = (uint)player.mPlayerHealth,
-            RelativeHealth = (float)player.mPlayerHealth / (float)Player.mMaxLife,
-            MagazineAmmunition = (uint)player.mEquippedWeapon.mCurrentMagazineAmmu,
-            Name = player.mName,
-            Plan = player.mPlan.ToString(),
-            Weapon = player.mEquippedWeapon.ToString(),
-            Statistics = new Assets.Scripts.VISAB.PlayerStatistics
-            {
-                Deaths = (uint)player.mStatistics.DeathCount(),
-                Frags = (uint)player.mStatistics.FragCount(),
-            },
-            Position = UnityVectorConverter(player.GetPlayerPosition())
-        };
-    }
-
-    /// <summary>
-    /// New method signature: VISABConnector.SendStatistics<T>(T statistics) where T : IVISABStatistics
-    /// </summary>
-    private void SendStatisticsNEW()
-    {
-        var gameInformation = GameControllerScript.GameInformation;
-
-        var visabStatistics = new Assets.Scripts.VISAB.VISABStatistics
-        {
-            CBRPlayer = ExtractPlayerInformation(gameInformation.CBRPlayer),
-            ScriptPlayer = ExtractPlayerInformation(gameInformation.NonCBRPlayer),
-            AmmunitionPosition = UnityVectorConverter(gameInformation.AmmunitionPosition),
-            HealthPosition = UnityVectorConverter(gameInformation.HealthPosition),
-            WeaponPosition = UnityVectorConverter(gameInformation.WeaponPosition),
-            Round = gameInformation.RoundCounter
-        };
-    }
-
-    /// <summary>
-    /// Transforms a Unity Vector3 struct into a System.Numerics.Vector3
-    /// </summary>
-    /// <param name="unityVector">The unity vector</param>
-    /// <returns></returns>
-    private System.Numerics.Vector3 UnityVectorConverter(Vector3 unityVector)
-    {
-        return new System.Numerics.Vector3
-        {
-            X = unityVector.x,
-            Y = unityVector.y,
-            Z = unityVector.z
-        };
-    }
-
-    #endregion
-
 }
