@@ -5,10 +5,6 @@ VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VISABConnector", "VISABConnector\VISABConnector.csproj", "{D0997F18-FDBE-4D87-B3F2-23DBCE0F1959}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestAPI", "TestAPI\TestAPI.csproj", "{8BC05784-4290-4835-A743-46793264E868}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestUi", "TestUi\TestUi.csproj", "{02E5F1E1-3C97-4C73-ACCB-F134AF3C8D2A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,14 +15,6 @@ Global
 		{D0997F18-FDBE-4D87-B3F2-23DBCE0F1959}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0997F18-FDBE-4D87-B3F2-23DBCE0F1959}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0997F18-FDBE-4D87-B3F2-23DBCE0F1959}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8BC05784-4290-4835-A743-46793264E868}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BC05784-4290-4835-A743-46793264E868}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8BC05784-4290-4835-A743-46793264E868}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8BC05784-4290-4835-A743-46793264E868}.Release|Any CPU.Build.0 = Release|Any CPU
-		{02E5F1E1-3C97-4C73-ACCB-F134AF3C8D2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{02E5F1E1-3C97-4C73-ACCB-F134AF3C8D2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{02E5F1E1-3C97-4C73-ACCB-F134AF3C8D2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{02E5F1E1-3C97-4C73-ACCB-F134AF3C8D2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

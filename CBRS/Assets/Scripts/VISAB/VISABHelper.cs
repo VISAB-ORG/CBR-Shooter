@@ -43,16 +43,15 @@ namespace Assets.Scripts.VISAB
         public static async Task StartVISABLoop(CancellationToken cancellationToken)
         {
             // Initializes the VISAB transmission session
-            Debug.Log("HI");
+            Debug.Log("Starting to initalize Session with VISAB api.");
             var visabApi = await VISABApi.InitiateSession("CBRShooter");
-            Debug.Log("XD");
             if (visabApi == default)
             {
-                Debug.Log("Couldent initialize VISAB api connection!");
                 await Task.Run(async () =>
                 {
                     while (visabApi == default)
                     {
+                        Debug.Log("Couldent initialize VISAB api session!");
                         VISABApi.StartVISAB("TODO:path");
                         visabApi = await VISABApi.InitiateSession("CBRShooter");
                     }
@@ -73,8 +72,8 @@ namespace Assets.Scripts.VISAB
                         var statistics = GameControllerScript.VisabStatistics;
                         if (statistics != null)
                         {
-                            await visabApi.SendStatistics(statistics);
-                            Debug.Log($"Send statistics to VISAB! Round:{statistics.Round}, Time: {statistics.RoundTime}");
+                            if (await visabApi.SendStatistics(statistics))
+                                Debug.Log($"Send statistics to VISAB! Round:{statistics.Round}, Time: {statistics.RoundTime}");
                         }
                     }
                     await Task.Delay(UpdateDelay);

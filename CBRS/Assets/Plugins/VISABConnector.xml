@@ -4,6 +4,12 @@
         <name>VISABConnector</name>
     </assembly>
     <members>
+        <member name="T:VISABConnector.AsyncHelper">
+            <summary>
+            Helper class for running asynchronous methods synchronously without deadlocking the current thread.
+            Should be used when VISABApi should be used in non async methods.
+            </summary>
+        </member>
         <member name="T:VISABConnector.DontSerialize">
             <summary>
             Properties decorated with this Attribute wont be serialized
@@ -283,6 +289,11 @@
             <param name="game">The game of which to sent data</param>
             <returns>A VISABApi object if the VISAB api is running, else null</returns>
         </member>
+        <member name="M:VISABConnector.VISABApi.IsReachable">
+            <summary>
+            Indicates if the VISAB api (web api in java project) is running
+            </summary>
+        </member>
         <member name="M:VISABConnector.VISABApi.StartVISAB(System.String)">
             <summary>
             Starts the VISAB jar
@@ -294,11 +305,6 @@
             Closes the session in the VISAB api
             </summary>
             <returns></returns>
-        </member>
-        <member name="M:VISABConnector.VISABApi.IsReachable">
-            <summary>
-            Indicates if the VISAB api (web api in java project) is running
-            </summary>
         </member>
         <member name="M:VISABConnector.VISABApi.SendStatistics``1(``0)">
             <summary>
