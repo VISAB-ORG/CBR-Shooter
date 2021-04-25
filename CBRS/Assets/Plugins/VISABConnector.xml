@@ -237,6 +237,11 @@
             The name of the game from which data will be sent
             </summary>
         </member>
+        <member name="P:VISABConnector.VISABApi.IsActive">
+            <summary>
+            Whether the session is active for the VISAB api
+            </summary>
+        </member>
         <member name="P:VISABConnector.VISABApi.RequestHandler">
             <summary>
             The RequestHandler used by the VISABApi object

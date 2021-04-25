@@ -72,6 +72,11 @@ namespace VISABConnector
         public string Game { get; }
 
         /// <summary>
+        /// Whether the session is active for the VISAB api
+        /// </summary>
+        public bool IsActive { get; private set; }
+
+        /// <summary>
         /// The RequestHandler used by the VISABApi object
         /// </summary>
         public IVISABRequestHandler RequestHandler { get; }
@@ -102,9 +107,11 @@ namespace VISABConnector
         public static async Task<VISABApi> InitiateSession(string game)
         {
             var conn = new VISABApi(game, Guid.NewGuid());
-
             if (await GameIsSupported(game) && await conn.OpenSession())
+            {
+                conn.IsActive = true;
                 return conn;
+            }
 
             if (!await GameIsSupported(game))
                 throw new Exception($"Game[{game}] is not supported by the VISAB Api!");
@@ -129,7 +136,12 @@ namespace VISABConnector
         {
             await Task.Run(() => CloseSessionEvent?.Invoke(this, new ClosingEventArgs { RequestHandler = RequestHandler })).ConfigureAwait(false);
 
-            return await RequestHandler.GetSuccessResponseAsync(HttpMethod.Get, ENDPOINT_SESSION_CLOSE, null, null).ConfigureAwait(false);
+            var closed = await RequestHandler.GetSuccessResponseAsync(HttpMethod.Get, ENDPOINT_SESSION_CLOSE, null, null).ConfigureAwait(false);
+
+            if (closed)
+                IsActive = false;
+
+            return closed;
         }
 
         /// <summary>
