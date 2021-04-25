@@ -54,6 +54,11 @@ namespace VISABConnector
 
         #endregion VISAB API relative endpoints
 
+        /// <summary>
+        /// Request handler used for operations that are independant of sessions.
+        /// </summary>
+        private static readonly IVISABRequestHandler staticRequestHandler = new VISABRequestHandler(null, Guid.Empty);
+
         private VISABApi(string game, Guid sessionId)
         {
             Game = game;
@@ -93,8 +98,7 @@ namespace VISABConnector
         /// <returns>True if game is supported, false else</returns>
         public static async Task<bool> GameIsSupported(string game)
         {
-            var handler = new VISABRequestHandler(null, Guid.Empty);
-            var supportedGames = await handler.GetDeserializedResponseAsync<List<string>>(HttpMethod.Get, ENDPOINT_GAME_SUPPORTED, null, null).ConfigureAwait(false);
+            var supportedGames = await staticRequestHandler.GetDeserializedResponseAsync<List<string>>(HttpMethod.Get, ENDPOINT_GAME_SUPPORTED, null, null).ConfigureAwait(false);
 
             if (supportedGames != default)
                 return await Task.Run(() => supportedGames.Contains(game)).ConfigureAwait(false);
@@ -130,9 +134,7 @@ namespace VISABConnector
         /// </summary>
         public static async Task<bool> IsReachable()
         {
-            var conn = new VISABApi(null, Guid.Empty);
-
-            return await conn.RequestHandler.GetSuccessResponseAsync(HttpMethod.Get, ENDPOINT_PING_TEST, null, null).ConfigureAwait(false);
+            return await staticRequestHandler.GetSuccessResponseAsync(HttpMethod.Get, ENDPOINT_PING_TEST, null, null).ConfigureAwait(false);
         }
 
         /// <summary>
