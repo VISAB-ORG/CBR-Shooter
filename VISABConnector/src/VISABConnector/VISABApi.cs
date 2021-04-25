@@ -96,7 +96,10 @@ namespace VISABConnector
             var handler = new VISABRequestHandler(null, Guid.Empty);
             var supportedGames = await handler.GetDeserializedResponseAsync<List<string>>(HttpMethod.Get, ENDPOINT_GAME_SUPPORTED, null, null).ConfigureAwait(false);
 
-            return await Task.Run(() => supportedGames.Contains(game)).ConfigureAwait(false);
+            if (supportedGames != default)
+                return await Task.Run(() => supportedGames.Contains(game)).ConfigureAwait(false);
+
+            return false;
         }
 
         /// <summary>
@@ -106,6 +109,9 @@ namespace VISABConnector
         /// <returns>A VISABApi object if the VISAB api is running, else null</returns>
         public static async Task<VISABApi> InitiateSession(string game)
         {
+            if (!await IsReachable())
+                return default;
+
             var conn = new VISABApi(game, Guid.NewGuid());
             if (await GameIsSupported(game) && await conn.OpenSession())
             {
@@ -117,6 +123,16 @@ namespace VISABConnector
                 throw new Exception($"Game[{game}] is not supported by the VISAB Api!");
 
             return default;
+        }
+
+        /// <summary>
+        /// Indicates if the VISAB api (web api in java project) is running
+        /// </summary>
+        public static async Task<bool> IsReachable()
+        {
+            var conn = new VISABApi(null, Guid.Empty);
+
+            return await conn.RequestHandler.GetSuccessResponseAsync(HttpMethod.Get, ENDPOINT_PING_TEST, null, null).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -142,14 +158,6 @@ namespace VISABConnector
                 IsActive = false;
 
             return closed;
-        }
-
-        /// <summary>
-        /// Indicates if the VISAB api (web api in java project) is running
-        /// </summary>
-        public async Task<bool> IsReachable()
-        {
-            return await RequestHandler.GetSuccessResponseAsync(HttpMethod.Get, ENDPOINT_PING_TEST, null, null).ConfigureAwait(false);
         }
 
         /// <summary>

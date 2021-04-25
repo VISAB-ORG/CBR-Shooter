@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncHelper.cs" />
     <Compile Include="Attribute\DontSerialize.cs" />
     <Compile Include="ClosingEventArgs.cs" />
     <Compile Include="Default.cs" />

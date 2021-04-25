@@ -24,6 +24,16 @@
             Contains default values used for communication with the VISAB api in the java project
             </summary>
         </member>
+        <member name="F:VISABConnector.Default.PORT">
+            <summary>
+            The port that VISAB is running on
+            </summary>
+        </member>
+        <member name="F:VISABConnector.Default.REQUEST_TIMEOUT">
+            <summary>
+            Timeout for HTTP Requests in seconds
+            </summary>
+        </member>
         <member name="T:VISABConnector.IVISABRequestHandler">
             <summary>
             Used for making Requests to the VISAB API (web api in java project)
@@ -137,6 +147,13 @@
             <param name="queryParameters">The query parameters</param>
             <param name="body">The requests body</param>
             <returns>The built HttpRequestMessage object</returns>
+        </member>
+        <member name="M:VISABConnector.RequestHandlerBase.GetResponseContentAsync(System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Reads the content from a HttpResponseMessage
+            </summary>
+            <param name="httpResponse">The HttpResponseMessage to read the content from</param>
+            <returns>The content as a string, empty string if request wasn't successful</returns>
         </member>
         <member name="T:VISABConnector.VISABRequestHandler">
             <inheritdoc cref="T:VISABConnector.IVISABRequestHandler"/>

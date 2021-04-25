@@ -15,7 +15,7 @@ namespace VISABConnector
         /// <summary>
         /// Timeout for HTTP Requests in seconds
         /// </summary>
-        public const int REQUEST_TIMEOUT = 2;
+        public const int REQUEST_TIMEOUT = 1;
 
         public static readonly string ContentMediaType = "application/json";
         public static readonly Encoding Encoding = Encoding.UTF8;

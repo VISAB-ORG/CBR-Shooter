@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VISABConnector;
 
 namespace TestUi
 {
@@ -29,15 +30,12 @@ namespace TestUi
 
         private void Get_Connection(object sender, RoutedEventArgs e)
         {
-            if (api != null)
-                api.Dispose();
-            api = VISABConnector.VISABApi.InitiateSession("TestGame");
+            api = AsyncHelper.RunSynchronously(VISABApi.InitiateSession, "CBRShooter");
+            var l = 0;
         }
 
         private void Ping_Test(object sender, RoutedEventArgs e)
         {
-            if (api != null)
-                MessageBox.Show($"Is VISAB API running? {api.IsReachable}");
         }
 
         private void Statistics_Test(object sender, RoutedEventArgs e)

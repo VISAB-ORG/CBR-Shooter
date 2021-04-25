@@ -43,14 +43,16 @@ namespace Assets.Scripts.VISAB
         public static async Task StartVISABLoop(CancellationToken cancellationToken)
         {
             // Initializes the VISAB transmission session
+            Debug.Log("HI");
             var visabApi = await VISABApi.InitiateSession("CBRShooter");
+            Debug.Log("XD");
             if (visabApi == default)
             {
+                Debug.Log("Couldent initialize VISAB api connection!");
                 await Task.Run(async () =>
                 {
                     while (visabApi == default)
                     {
-                        Debug.Log("Couldent initialize VISAB api connection!");
                         VISABApi.StartVISAB("TODO:path");
                         visabApi = await VISABApi.InitiateSession("CBRShooter");
                     }

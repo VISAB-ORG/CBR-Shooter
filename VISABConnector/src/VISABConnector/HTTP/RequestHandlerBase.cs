@@ -49,12 +49,12 @@ namespace VISABConnector
             {
                 return await httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             }
-            catch (HttpRequestException e)
+            catch (Exception e)
             {
                 return new HttpResponseMessage
                 {
                     RequestMessage = request,
-                    ReasonPhrase = $"[VISABConnector] Failed to make request to VISAB api. Error: {e}",
+                    ReasonPhrase = $"[VISABConnector] Failed to make request to VISAB api.",
                     StatusCode = System.Net.HttpStatusCode.BadGateway
                 };
             }
