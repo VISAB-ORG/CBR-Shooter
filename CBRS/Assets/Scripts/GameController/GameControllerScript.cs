@@ -357,8 +357,8 @@ public class GameControllerScript : MonoBehaviour
         }
 
         // Start VISAB api transmission
-        visabLoopCancellationTokenSource = new CancellationTokenSource();
-        VISABHelper.StartVISABLoop(visabLoopCancellationTokenSource.Token);
+        VisabLoopCTS = new CancellationTokenSource();
+        VISABHelper.StartVISABLoop(VisabLoopCTS.Token);
     }
 
     /**
@@ -378,7 +378,7 @@ public class GameControllerScript : MonoBehaviour
     /// <summary>
     /// Cancellation Token to cancel the loop of sending data to VISAB
     /// </summary>
-    private CancellationTokenSource visabLoopCancellationTokenSource;
+    public static CancellationTokenSource VisabLoopCTS { get; private set; }
 
     /// <summary>
     /// The VISABStatistics object, holding the information that will be sent to VISAB
@@ -903,9 +903,12 @@ public class GameControllerScript : MonoBehaviour
      */
     private void OnApplicationQuit()
     {
-        visabLoopCancellationTokenSource.Cancel();
+        #if UNITY_EDITOR
+        // Cancel visab token
+        VisabLoopCTS.Cancel();
         Constants.proc.Kill();
-        Thread.Sleep(5 * VISABHelper.UpdateDelay);
+        Thread.Sleep(2 * VISABHelper.UpdateDelay);
+        #endif
     }
 
     /**
