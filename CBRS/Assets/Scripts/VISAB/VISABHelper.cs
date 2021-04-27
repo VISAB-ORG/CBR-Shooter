@@ -74,6 +74,8 @@ namespace Assets.Scripts.VISAB
                         {
                             if (await visabApi.SendStatistics(statistics))
                                 Debug.Log($"Send statistics to VISAB! Round:{statistics.Round}, Time: {statistics.RoundTime}");
+                            else
+                                break;
                         }
                     }
                     await Task.Delay(UpdateDelay);

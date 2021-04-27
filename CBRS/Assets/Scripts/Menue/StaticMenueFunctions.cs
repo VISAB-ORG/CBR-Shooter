@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Assets.Scripts.Util;
+using Assets.Scripts.VISAB;
+using System;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -6,7 +9,8 @@ using UnityEngine.SceneManagement;
 /**
  * Klasse, die einige statische Methoden für die Menüführung beinhaltet.
  */
-public class StaticMenueFunctions {
+public class StaticMenueFunctions
+{
 
     /**
      * Kameraobjekt.
@@ -22,9 +26,9 @@ public class StaticMenueFunctions {
      */
     private StaticMenueFunctions()
     {
-        
+
     }
-    
+
     /**
      * Singleton Desing Pattern Methode.
      * 
@@ -53,7 +57,20 @@ public class StaticMenueFunctions {
      */
     public void QuitApplication()
     {
-        Application.Quit();
+#if !UNITY_EDITOR
+        // Cancel visab loop
+        try
+        {
+            GameControllerScript.VisabLoopCTS.Cancel();
+            Constants.proc.Kill();
+            Thread.Sleep(1 * VISABHelper.UpdateDelay);
+        }
+        catch { }
+        finally
+        {
+            Application.Quit();
+        }
+#endif
     }
 
     /**
