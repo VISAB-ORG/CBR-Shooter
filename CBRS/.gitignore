@@ -1,3 +1,10 @@
+Build/MonoBleedingEdge/
+Build/Nightmares_Data/
+Build/Saves
+Build/*.exe
+Build/*.dll
+Build/log.txt
+Build/visab_files/
 Saves/
 visab_files/
 log.txt
@@ -12,7 +19,6 @@ JavaLog.txt
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
-/[Bb]uild/
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
