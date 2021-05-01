@@ -727,6 +727,12 @@ public class GameControllerScript : MonoBehaviour
      */
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            var env = GameObject.Find("Environment");
+            var player1 = GameObject.Find("")
+        }
+
         updateRoundTimer();
         updateCurrentCBRHealthPoints();
 
