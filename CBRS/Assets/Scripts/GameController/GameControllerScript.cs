@@ -13,6 +13,7 @@ using VISABConnector;
 using System.Threading.Tasks;
 using System.Threading;
 using System.ComponentModel;
+using Assets.Scripts.VISAB.Map;
 
 /**
  * Dieses Skript stellt den zentralen Bezugspunkt des Programmes dar, an dem alle relevanten Daten gespeichert sind.
@@ -730,7 +731,12 @@ public class GameControllerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C))
         {
             var env = GameObject.Find("Environment");
-            var player1 = GameObject.Find("")
+            var boundsEnv = MapExtractionHelper.GetBounds(env);
+            var player1 = GameObject.Find("John Doe");
+            var boundsPlayer1 = MapExtractionHelper.GetBounds(player1);
+            var image = MapExtractionHelper.GetSnapshotCenter(GameObjectType.DyanmicMoveable, player1, 400, 400);
+            var player2 = GameObject.Find("Jane Doe");
+            image.SaveAsync($@"C:\Users\moritz\Desktop\Map Extraction testing\{Guid.NewGuid()}.png", ImageEncoding.PNG).Wait();
         }
 
         updateRoundTimer();
