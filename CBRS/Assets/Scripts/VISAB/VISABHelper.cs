@@ -43,48 +43,39 @@ namespace Assets.Scripts.VISAB
         public static async Task StartVISABLoop(CancellationToken cancellationToken)
         {
             // Initializes the VISAB transmission session
-            Debug.Log("Starting to initalize Session with VISAB api.");
-            var visabApi = await VISABApi.InitiateSession("CBRShooter");
-            if (visabApi == default)
+            Debug.Log("Starting to initalize Session with VISAB WebApi.");
+            var session = await VISABConnector.VISABConnector.InitiateSession("CBRShooter");
+            if (session == default)
             {
-                await Task.Run(async () =>
+                while (session == default && !cancellationToken.IsCancellationRequested)
                 {
-                    while (visabApi == default)
+                    Debug.Log("Couldent initialize VISAB api session!");
+                    session = await VISABConnector.VISABConnector.InitiateSession("CBRShooter");
+                }
+            }
+            Debug.Log($"Initialized Session with VISAB WebApi! SessionId:{session.SessionId}");
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                if (GameControllerScript.GameInformation.GameState == GameState.RUNNING)
+                {
+                    var statistics = GetCurrentStatistics();
+                    if (statistics != null)
                     {
-                        Debug.Log("Couldent initialize VISAB api session!");
-                        VISABApi.StartVISAB("TODO:path");
-                        visabApi = await VISABApi.InitiateSession("CBRShooter");
+                        if (await session.SendStatistics(statistics))
+                            Debug.Log($"Send statistics to VISAB! Round:{statistics.Round}, Time: {statistics.RoundTime}");
+                        else
+                            break;
                     }
-                });
+                }
+
+                await Task.Delay(UpdateDelay);
             }
 
-            // Starts an infinite loop in another thread. The thread is killed, once the
-            // cancellationToken is canceled.
-            await Task.Run(async () =>
-            {
-                while (true)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                        break;
-
-                    if (GameControllerScript.GameInformation.GameState == GameState.RUNNING)
-                    {
-                        var statistics = GameControllerScript.VisabStatistics;
-                        if (statistics != null)
-                        {
-                            if (await visabApi.SendStatistics(statistics))
-                                Debug.Log($"Send statistics to VISAB! Round:{statistics.Round}, Time: {statistics.RoundTime}");
-                            else
-                                break;
-                        }
-                    }
-                    await Task.Delay(UpdateDelay);
-                }
-            });
-
             // Close the VISAB api session
-            Debug.Log($"Closing VISAB session with id {visabApi.SessionId}!");
-            await visabApi.CloseSession();
+            Debug.Log($"Closing VISAB WebApi session! SessionId:{session.SessionId}");
+            await session.CloseSession();
+            Debug.Log($"Closed session!");
         }
 
         /// <summary>

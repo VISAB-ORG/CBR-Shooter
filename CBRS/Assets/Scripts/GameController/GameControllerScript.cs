@@ -740,12 +740,6 @@ public class GameControllerScript : MonoBehaviour
         checkInput();
 
         SetGameInformation();
-        SetVISABStatistics();
-    }
-
-    private void SetVISABStatistics()
-    {
-        VisabStatistics = VISABHelper.GetCurrentStatistics();
     }
 
     private void SetGameInformation()
