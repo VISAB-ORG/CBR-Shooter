@@ -4,6 +4,21 @@
         <name>VISABConnector</name>
     </assembly>
     <members>
+        <member name="T:VISABConnector.ApiResponse">
+            <summary>
+            Is returned when requests to the VISAB WebApi are made
+            </summary>
+        </member>
+        <member name="P:VISABConnector.ApiResponse.IsSuccess">
+            <summary>
+            Whether the request was successfull
+            </summary>
+        </member>
+        <member name="P:VISABConnector.ApiResponse.Message">
+            <summary>
+            The message returned by VISAB WebApi
+            </summary>
+        </member>
         <member name="T:VISABConnector.AsyncHelper">
             <summary>
             Helper class for running asynchronous methods synchronously without deadlocking the current
@@ -25,7 +40,7 @@
             <typeparam name="T1">The type of the first parameter</typeparam>
             <typeparam name="TReturn">The return type of the Func</typeparam>
             <param name="asyncMethod">The Func (function reference) to invoke</param>
-            <param name="value1">The first parameter</param>
+            <param name="value">The first parameter</param>
             <returns>The result of the Func invocation</returns>
         </member>
         <member name="M:VISABConnector.AsyncHelper.RunSynchronously``3(System.Func{``0,``1,System.Threading.Tasks.Task{``2}},``0,``1)">
@@ -159,6 +174,27 @@
             Used for making Http requests to the VISAB WebApi
             </summary>
         </member>
+        <member name="M:VISABConnector.IVISABRequestHandler.GetApiResponseAsync``1(System.Net.Http.HttpMethod,System.String,System.Collections.Generic.IEnumerable{System.String},``0)">
+            <summary>
+            Gets an ApiResponse for the given request
+            </summary>
+            <typeparam name="TBody">The type of the body</typeparam>
+            <param name="httpMethod">The http method used</param>
+            <param name="relativeUrl">The relative url to make the request to</param>
+            <param name="queryParameters">The query parameters</param>
+            <param name="body">The requests body</param>
+            <returns>An awaitable Task which results in an ApiResponse object</returns>
+        </member>
+        <member name="M:VISABConnector.IVISABRequestHandler.GetApiResponseAsync(System.Net.Http.HttpMethod,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Gets an ApiResponse for the given request
+            </summary>
+            <param name="httpMethod">The http method used</param>
+            <param name="relativeUrl">The relative url to make the request to</param>
+            <param name="queryParameters">The query parameters</param>
+            <param name="body">The requests body</param>
+            <returns>An awaitable Task which results in an ApiResponse object</returns>
+        </member>
         <member name="M:VISABConnector.IVISABRequestHandler.GetDeserializedResponseAsync``1(System.Net.Http.HttpMethod,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
             <summary>
             Gets the deserialize response content
@@ -285,6 +321,12 @@
             <param name="gameHeader">The game for which information will be sent</param>
             <param name="sessionIdHeader">The sessionId of the current tranmission session</param>
         </member>
+        <member name="M:VISABConnector.Http.VISABRequestHandler.GetApiResponseAsync``1(System.Net.Http.HttpMethod,System.String,System.Collections.Generic.IEnumerable{System.String},``0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:VISABConnector.Http.VISABRequestHandler.GetApiResponseAsync(System.Net.Http.HttpMethod,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <inheritdoc/>
+        </member>
         <member name="M:VISABConnector.Http.VISABRequestHandler.GetDeserializedResponseAsync``1(System.Net.Http.HttpMethod,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
             <inheritdoc/>
         </member>
@@ -319,44 +361,57 @@
             The game of which statistics are sent
             </summary>
         </member>
-        <member name="T:VISABConnector.VISABConnector">
+        <member name="T:VISABConnector.VISABApi">
             <summary>
             Class for initializing transmission sessions and making static requests to the VISAB WebApi
             </summary>
         </member>
-        <member name="F:VISABConnector.VISABConnector.ENDPOINT_GAME_SUPPORTED">
+        <member name="F:VISABConnector.VISABApi.ENDPOINT_GAME_SUPPORTED">
             <summary>
             Relative endpoint for checking useability for current game in VISAB API
             </summary>
         </member>
-        <member name="F:VISABConnector.VISABConnector.ENDPOINT_PING_TEST">
+        <member name="F:VISABConnector.VISABApi.ENDPOINT_PING_TEST">
             <summary>
             Relative endpoint for ping testing the VISAB API
             </summary>
         </member>
-        <member name="F:VISABConnector.VISABConnector.ENDPOINT_SESSION_LIST">
+        <member name="F:VISABConnector.VISABApi.ENDPOINT_SESSION_LIST">
             <summary>
             Relative endpoints for listing the currently active sessions in VISAB API
             </summary>
         </member>
-        <member name="F:VISABConnector.VISABConnector.ENDPOINT_SESSION_STATUS">
+        <member name="F:VISABConnector.VISABApi.ENDPOINT_SESSION_STATUS">
             <summary>
             Relative endpoints for checking session status in VISAB API
             </summary>
         </member>
-        <member name="F:VISABConnector.VISABConnector.staticRequestHandler">
+        <member name="F:VISABConnector.VISABApi.requestHandler">
             <summary>
             Request handler used for making Http requests
             </summary>
         </member>
-        <member name="M:VISABConnector.VISABConnector.GameIsSupported(System.String)">
+        <member name="M:VISABConnector.VISABApi.GameIsSupported(System.String)">
             <summary>
             Indicates if the VISAB WebApi can receive data for the given game
             </summary>
             <param name="game">The game to check</param>
             <returns>True if game is supported, false else</returns>
         </member>
-        <member name="M:VISABConnector.VISABConnector.InitiateSession(System.String)">
+        <member name="M:VISABConnector.VISABApi.GetSessionStatus(System.Guid)">
+            <summary>
+            Gets the session status of for a given sessionId
+            </summary>
+            <param name="sessionId">The sessionId to check</param>
+            <returns></returns>
+        </member>
+        <member name="M:VISABConnector.VISABApi.GetActiveSessions">
+            <summary>
+            Returns a list of the sessionIds for all active sessions
+            </summary>
+            <returns>A list of the sessionIds for all active sessions</returns>
+        </member>
+        <member name="M:VISABConnector.VISABApi.InitiateSession(System.String)">
             <summary>
             Creates a IVISABSession object, which simultaneously opens a transmission session at the
             VISAB WebApi
@@ -364,13 +419,13 @@
             <param name="game">The game of which to sent data</param>
             <returns>A IVISABSession object if a transmission session was openend, else null</returns>
         </member>
-        <member name="M:VISABConnector.VISABConnector.IsApiReachable">
+        <member name="M:VISABConnector.VISABApi.IsApiReachable">
             <summary>
             Indicates if the VISAB WebApi is running
             </summary>
             <returns>True if VISAB WebApi is reachable, false else</returns>
         </member>
-        <member name="M:VISABConnector.VISABConnector.StartVISAB(System.String)">
+        <member name="M:VISABConnector.VISABApi.StartVISAB(System.String)">
             <summary>
             Starts the VISAB jar
             </summary>

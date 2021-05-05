@@ -44,13 +44,14 @@ namespace Assets.Scripts.VISAB
         {
             // Initializes the VISAB transmission session
             Debug.Log("Starting to initalize Session with VISAB WebApi.");
-            var session = await VISABConnector.VISABConnector.InitiateSession("CBRShooter");
+            var session = await VISABApi.InitiateSession("CBRShooter");
             if (session == default)
             {
+                // TODO: Start VISAB
                 while (session == default && !cancellationToken.IsCancellationRequested)
                 {
                     Debug.Log("Couldent initialize VISAB api session!");
-                    session = await VISABConnector.VISABConnector.InitiateSession("CBRShooter");
+                    session = await VISABApi.InitiateSession("CBRShooter");
                 }
             }
             Debug.Log($"Initialized Session with VISAB WebApi! SessionId:{session.SessionId}");
@@ -62,7 +63,8 @@ namespace Assets.Scripts.VISAB
                     var statistics = GetCurrentStatistics();
                     if (statistics != null)
                     {
-                        if (await session.SendStatistics(statistics))
+                        var response = await session.SendStatistics(statistics);
+                        if (response.IsSuccess)
                             Debug.Log($"Send statistics to VISAB! Round:{statistics.Round}, Time: {statistics.RoundTime}");
                         else
                             break;
