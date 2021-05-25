@@ -22,16 +22,19 @@ namespace Assets.Scripts.VISAB
             if (gameInformation == null)
                 return null;
 
-            return new VISABStatistics
+            var statistics = new VISABStatistics
             {
                 RoundTime = gameInformation.RoundTime,
-                CBRPlayer = ExtractPlayerInformation(gameInformation.CBRPlayer),
-                ScriptPlayer = ExtractPlayerInformation(gameInformation.NonCBRPlayer),
                 AmmunitionPosition = Vector3ToVector2(gameInformation.AmmunitionPosition),
                 HealthPosition = Vector3ToVector2(gameInformation.HealthPosition),
                 WeaponPosition = Vector3ToVector2(gameInformation.WeaponPosition),
                 Round = gameInformation.RoundCounter
             };
+
+            statistics.Players.Add(ExtractPlayerInformation(gameInformation.CBRPlayer));
+            statistics.Players.Add(ExtractPlayerInformation(gameInformation.NonCBRPlayer));
+
+            return statistics;
         }
 
         /// <summary>
@@ -98,6 +101,8 @@ namespace Assets.Scripts.VISAB
                 RelativeHealth = (float)player.mPlayerHealth / (float)Player.mMaxLife,
                 MagazineAmmunition = (uint)player.mEquippedWeapon.mCurrentMagazineAmmu,
                 Name = player.mName,
+                IsCBR = player.mCBR,
+                IsHumanController = player.mIsHumanControlled,
                 Plan = plan,
                 Weapon = player.mEquippedWeapon.mName,
                 Statistics = new PlayerStatistics
