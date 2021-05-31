@@ -76,7 +76,7 @@ namespace Assets.Scripts.AI
                 // Frequenz hochzählen
                 updateTime = Mathf.FloorToInt(Time.time) + 1;
                 // Statistiken senden
-                SendStatistics();
+                // SendStatistics();
             }
 
             //Debug.Log(test);
@@ -181,6 +181,7 @@ namespace Assets.Scripts.AI
             }
         }
 
+        
         /// <summary>
         /// Sends the statistics to PathViewer.jar
         /// </summary>
