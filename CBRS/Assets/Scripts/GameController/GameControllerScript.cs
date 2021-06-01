@@ -368,7 +368,6 @@ public class GameControllerScript : MonoBehaviour
     {
         bool withWindow = true;
         Constants.StartServer(withWindow);
-        Constants.StartPathViewerServer(withWindow);
         mAgentController = new AgentController();
         mAgentController.StartAgentPortal();
     }
