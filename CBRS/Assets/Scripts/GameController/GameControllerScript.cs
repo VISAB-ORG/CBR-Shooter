@@ -318,6 +318,9 @@ public class GameControllerScript : MonoBehaviour
             mWeaponsCrateSpawnPoints.Add(mPickUpsSpawnPoints.transform.GetChild(i));
         }
 
+        // Run Snapshot Script
+        TakeSnapshot();
+
         // C.W.: Spawning and Creating the players
         mPlayers = new List<Player>();
         Cursor.lockState = CursorLockMode.Locked;
@@ -730,13 +733,11 @@ public class GameControllerScript : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.C))
         {
-            var env = GameObject.Find("Environment");
-            var boundsEnv = MapExtractionHelper.GetBounds(env);
-            var player1 = GameObject.Find("John Doe");
-            var boundsPlayer1 = MapExtractionHelper.GetBounds(player1);
-            var image = MapExtractionHelper.GetSnapshotCenter(GameObjectType.DyanmicMoveable, player1, 400, 400);
-            var player2 = GameObject.Find("Jane Doe");
-            image.SaveAsync($@"C:\Users\moritz\Desktop\Map Extraction testing\{Guid.NewGuid()}.png", ImageEncoding.PNG).Wait();
+            var env = GameObject.Find("Floor");
+            var image = MapExtractionHelper.GetSnapshotCenter(GameObjectType.Static, env, 1080, 1080);
+            string path = string.Format("{0}/Snapshots/minimap_{1}.png", Application.dataPath, System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+            image.SaveAsync(path, ImageEncoding.PNG).Wait();
+            Debug.Log("Snapshot taken");
         }
 
         updateRoundTimer();
@@ -783,6 +784,11 @@ public class GameControllerScript : MonoBehaviour
     private void updateCurrentCBRHealthPoints()
     {
         ScoreBoardManager.updateCurrentCBRHP(mCBRPlayer.mPlayerHealth);
+    }
+
+    private void TakeSnapshot()
+    {
+        MinimapCamera.SetupCamera(); 
     }
 
     /*
