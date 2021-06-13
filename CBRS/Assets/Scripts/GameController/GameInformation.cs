@@ -9,6 +9,8 @@ using static GameControllerScript;
 /// </summary>
 public class GameInformation
 {
+    public float Speed { get; internal set; }
+
     /// <summary>
     /// Get the time since the round has started in seconds
     /// </summary>
@@ -54,4 +56,5 @@ public class GameInformation
     /// Coordinates of spawned Weapon Default if none on map
     /// </summary>
     public Vector3 WeaponPosition { get; set; }
+    public float TotalTime { get; internal set; }
 }

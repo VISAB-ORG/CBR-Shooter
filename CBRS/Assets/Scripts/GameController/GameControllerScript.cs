@@ -23,7 +23,7 @@ public class GameControllerScript : MonoBehaviour
     /// Represents the current state of the game
     /// Might rename to GameState
     /// </summary>
-    public static GameInformation GameInformation { get; private set; }
+    public static GameInformation GameInformation { get; } = new GameInformation();
 
     /**
      * C.W.: Reference to an empty gameObject identifys the prefered camping position
@@ -365,6 +365,8 @@ public class GameControllerScript : MonoBehaviour
             VISABHelper.StartVISABLoop(session, VisabLoopCTS.Token);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
+
+        // Time.timeScale = 5f;
     }
 
     /**
@@ -744,24 +746,23 @@ public class GameControllerScript : MonoBehaviour
         restartPickUpTimer();
         checkInput();
 
-        SetGameInformation();
+        UpdateGameInformation();
     }
 
-    private void SetGameInformation()
+    private void UpdateGameInformation()
     {
         var players = CommonUnityFunctions.GetBotPlayersCorrectly();
 
-        GameInformation = new GameInformation
-        {
-            RoundTime = mRoundDuration - mRoundTimer,
-            AmmunitionPosition = ammuPositionRaw,
-            CBRPlayer = players.Item1,
-            NonCBRPlayer = players.Item2,
-            GameState = mState,
-            HealthPosition = healthPositionRaw,
-            RoundCounter = roundCounter,
-            WeaponPosition = weaponPositionRaw
-        };
+        GameInformation.RoundTime = mRoundDuration - mRoundTimer;
+        GameInformation.AmmunitionPosition = ammuPositionRaw;
+        GameInformation.CBRPlayer = players.Item1;
+        GameInformation.NonCBRPlayer = players.Item2;
+        GameInformation.GameState = mState;
+        GameInformation.HealthPosition = healthPositionRaw;
+        GameInformation.RoundCounter = roundCounter;
+        GameInformation.WeaponPosition = weaponPositionRaw;
+        GameInformation.TotalTime += Time.deltaTime;
+        GameInformation.Speed = Time.timeScale;
     }
 
     /*
@@ -906,7 +907,7 @@ public class GameControllerScript : MonoBehaviour
         // Cancel visab token
         VisabLoopCTS.Cancel();
         Constants.proc.Kill();
-        Thread.Sleep(2 * VISABHelper.UpdateDelay);
+        Thread.Sleep(500);
 #endif
     }
 

@@ -11,14 +11,12 @@ namespace Assets.Scripts.VISAB
     public static class VISABHelper
     {
         /// <summary>
-        /// The delay inbetween sending statistics to VISAB in miliseconds
+        /// How many times to send statistics per ingame second.
         /// </summary>
-        public const int UpdateDelay = 100;
+        public const int SendPerSecond = 10;
 
-        public static VISABStatistics GetCurrentStatistics()
+        public static VISABStatistics GetCurrentStatistics(GameInformation gameInformation)
         {
-            var gameInformation = GameControllerScript.GameInformation;
-
             if (gameInformation == null)
                 return null;
 
@@ -28,7 +26,9 @@ namespace Assets.Scripts.VISAB
                 AmmunitionPosition = Vector3ToVector2(gameInformation.AmmunitionPosition),
                 HealthPosition = Vector3ToVector2(gameInformation.HealthPosition),
                 WeaponPosition = Vector3ToVector2(gameInformation.WeaponPosition),
-                Round = gameInformation.RoundCounter
+                Round = gameInformation.RoundCounter,
+                TotalTime = gameInformation.TotalTime,
+                Speed = gameInformation.Speed
             };
 
             statistics.Players.Add(ExtractPlayerInformation(gameInformation.CBRPlayer));
@@ -73,9 +73,11 @@ namespace Assets.Scripts.VISAB
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                if (GameControllerScript.GameInformation?.GameState == GameState.RUNNING)
+                var gameInformation = GameControllerScript.GameInformation;
+                if (gameInformation?.GameState == GameState.RUNNING)
                 {
-                    var statistics = GetCurrentStatistics();
+                    Debug.Log("Hi");
+                    var statistics = GetCurrentStatistics(gameInformation);
                     if (statistics != null)
                     {
                         var response = await session.SendStatistics(statistics);
@@ -89,10 +91,14 @@ namespace Assets.Scripts.VISAB
                             break;
                         }
                     }
+
+                    var delay = Mathf.FloorToInt((1000 / SendPerSecond) / gameInformation.Speed);
+                    await Task.Delay(delay);
                 }
 
-                await Task.Delay(UpdateDelay);
+                await Task.Delay(20);
             }
+
 
             // Close the VISAB api session
             Debug.Log($"Closing VISAB WebApi session! SessionId:{session.SessionId}");
