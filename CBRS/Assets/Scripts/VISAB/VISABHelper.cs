@@ -45,16 +45,18 @@ namespace Assets.Scripts.VISAB
         /// <returns>An awaitable Task</returns>
         public static async Task StartVISABLoop(CancellationToken cancellationToken)
         {
+            var visabApi = new VISABApi();
+
             // Initializes the VISAB transmission session
             Debug.Log("Starting to initalize Session with VISAB WebApi.");
-            var session = await VISABApi.InitiateSession("CBRShooter");
+            var session = await visabApi.InitiateSession("CBRShooter");
             if (session == default)
             {
                 // TODO: Start VISAB
                 while (session == default && !cancellationToken.IsCancellationRequested)
                 {
                     Debug.Log("Couldent initialize VISAB api session!");
-                    session = await VISABApi.InitiateSession("CBRShooter");
+                    session = await visabApi.InitiateSession("CBRShooter");
                 }
             }
             Debug.Log($"Initialized Session with VISAB WebApi! SessionId:{session.SessionId}");
