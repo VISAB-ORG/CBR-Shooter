@@ -37,6 +37,17 @@ namespace Assets.Scripts.VISAB
         public float RoundTime { get; set; }
 
         /// <summary>
+        /// The cumulated time in seconds over all rounds
+        /// </summary>
+        public float TotalTime { get; set; }
+
+        /// <summary>
+        /// The speed at which the game is played.
+        /// 1 is normal, 2 is twice and so on.
+        /// </summary>
+        public float Speed { get; set; }
+
+        /// <summary>
         /// The position of the weapon item
         /// </summary>
         public Vector2 WeaponPosition { get; set; }
