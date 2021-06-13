@@ -45,21 +45,25 @@ namespace Assets.Scripts.VISAB
         /// <returns>An awaitable Task</returns>
         public static async Task StartVISABLoop(CancellationToken cancellationToken)
         {
-            var visabApi = new VISABApi();
+            var visabApi = new VISABApi(requestTimeout: 1);
+            // var visabApi = new VISABApi("http://25.44.85.33", 2673);
 
             // Initializes the VISAB transmission session
-            Debug.Log("Starting to initalize Session with VISAB WebApi.");
-            var session = await visabApi.InitiateSession("CBRShooter");
-            if (session == default)
+            Debug.Log("Starting to initiate Session with VISAB WebApi.");
+            var session = await TryInitiateSession(visabApi);
+            if (session == null)
             {
                 // TODO: Start VISAB
-                while (session == default && !cancellationToken.IsCancellationRequested)
-                {
-                    Debug.Log("Couldent initialize VISAB api session!");
-                    session = await visabApi.InitiateSession("CBRShooter");
-                }
+                // VISABApi.StartVISAB("");
+                session = await TryInitiateSession(visabApi);
             }
-            Debug.Log($"Initialized Session with VISAB WebApi! SessionId:{session.SessionId}");
+
+            // If session is still null, return
+            if (session == null)
+            {
+                Debug.Log("Failed to initiate session twice, giving up on connecting to visab.");
+                return;
+            }
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -83,6 +87,23 @@ namespace Assets.Scripts.VISAB
             Debug.Log($"Closing VISAB WebApi session! SessionId:{session.SessionId}");
             await session.CloseSession();
             Debug.Log($"Closed session!");
+        }
+
+        private static async Task<IVISABSession> TryInitiateSession(VISABApi api)
+        {
+            var response = await api.InitiateSession("CBRShooter").ConfigureAwait(false);
+            if (!response.IsSuccess)
+            {
+                Debug.Log("Couldent initialize VISAB api session! Reason:\n");
+                Debug.Log(response.ErrorMessage);
+
+                return null;
+            }
+            else
+            {
+                Debug.Log($"Initialized Session with VISAB WebApi! SessionId given:{response.Content.SessionId}");
+                return response.Content;
+            }
         }
 
         /// <summary>
