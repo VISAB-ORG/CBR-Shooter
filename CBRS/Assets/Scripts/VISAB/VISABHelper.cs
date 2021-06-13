@@ -37,46 +37,57 @@ namespace Assets.Scripts.VISAB
             return statistics;
         }
 
-        /// <summary>
-        /// Initiates the infinite loop that sends information to the VISAB api. The loop is stopped
-        /// if the given cancellationToken is canceled.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellationToken</param>
-        /// <returns>An awaitable Task</returns>
-        public static async Task StartVISABLoop(CancellationToken cancellationToken)
+        public static async Task<IVISABSession> InitiateSession()
         {
             var visabApi = new VISABApi(requestTimeout: 1);
             // var visabApi = new VISABApi("http://25.44.85.33", 2673);
 
             // Initializes the VISAB transmission session
             Debug.Log("Starting to initiate Session with VISAB WebApi.");
-            var session = await TryInitiateSession(visabApi);
+            var session = await TryInitiateSession(visabApi).ConfigureAwait(false);
             if (session == null)
             {
                 // TODO: Start VISAB
                 // VISABApi.StartVISAB("");
-                session = await TryInitiateSession(visabApi);
+                session = await TryInitiateSession(visabApi).ConfigureAwait(false);
             }
 
             // If session is still null, return
             if (session == null)
-            {
                 Debug.Log("Failed to initiate session twice, giving up on connecting to visab.");
+
+            return session;
+        }
+
+        /// <summary>
+        /// Initiates the infinite loop that sends information to the VISAB api. The loop is stopped
+        /// if the given cancellationToken is canceled.
+        /// </summary>
+        /// <param name="session">The session from which to send data</param>
+        /// <param name="cancellationToken">The cancellationToken</param>
+        /// <returns>An awaitable Task</returns>
+        public static async Task StartVISABLoop(IVISABSession session, CancellationToken cancellationToken)
+        {
+            if (session == null)
                 return;
-            }
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                if (GameControllerScript.GameInformation.GameState == GameState.RUNNING)
+                if (GameControllerScript.GameInformation?.GameState == GameState.RUNNING)
                 {
                     var statistics = GetCurrentStatistics();
                     if (statistics != null)
                     {
                         var response = await session.SendStatistics(statistics);
                         if (response.IsSuccess)
+                        {
                             Debug.Log($"Send statistics to VISAB! Round:{statistics.Round}, Time: {statistics.RoundTime}");
+                        }
                         else
+                        {
+                            Debug.Log("Failed to send statistics to VISAB. Breaking out of loop!");
                             break;
+                        }
                     }
                 }
 

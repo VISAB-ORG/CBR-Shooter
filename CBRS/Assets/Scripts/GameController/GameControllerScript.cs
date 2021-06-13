@@ -357,8 +357,14 @@ public class GameControllerScript : MonoBehaviour
         }
 
         // Start VISAB api transmission
-        VisabLoopCTS = new CancellationTokenSource();
-        VISABHelper.StartVISABLoop(VisabLoopCTS.Token);
+        var session = VISABHelper.InitiateSession().Result;
+        if (session != null)
+        {
+            VisabLoopCTS = new CancellationTokenSource();
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            VISABHelper.StartVISABLoop(session, VisabLoopCTS.Token);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        }
     }
 
     /**
@@ -371,9 +377,9 @@ public class GameControllerScript : MonoBehaviour
         mAgentController = new AgentController();
         mAgentController.StartAgentPortal();
     }
-    
+
     #region VISAB variables
-    
+
     /// <summary>
     /// Cancellation Token to cancel the loop of sending data to VISAB
     /// </summary>
@@ -896,12 +902,12 @@ public class GameControllerScript : MonoBehaviour
      */
     private void OnApplicationQuit()
     {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         // Cancel visab token
         VisabLoopCTS.Cancel();
         Constants.proc.Kill();
         Thread.Sleep(2 * VISABHelper.UpdateDelay);
-        #endif
+#endif
     }
 
     /**
