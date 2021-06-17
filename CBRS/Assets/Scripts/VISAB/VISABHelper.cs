@@ -15,7 +15,7 @@ namespace Assets.Scripts.VISAB
         /// </summary>
         public const int SendPerSecond = 10;
 
-        public static string HostName { get; set; }
+        public static string HostAdress { get; set; }
 
         public static int Port { get; set; }
 
@@ -45,12 +45,11 @@ namespace Assets.Scripts.VISAB
 
         public static async Task<IVISABSession> InitiateSession()
         {
-            // var visabApi = new VISABApi("http://25.44.85.33", 2673);
-            Debug.Log($"Instantiating VISABApi with HostName: {HostName}, Port: {Port}, RequestTimeout: {RequestTimeout}");
-            var visabApi = new VISABApi(HostName, Port, RequestTimeout);
+            Debug.Log($"Instantiating VISABApi with HostAdress: {HostAdress}, Port: {Port}, RequestTimeout: {RequestTimeout}");
+            var visabApi = new VISABApi(HostAdress, Port, RequestTimeout);
 
-            // Initializes the VISAB transmission session
             Debug.Log("Starting to initiate Session with VISAB WebApi.");
+            // Initializes the VISAB transmission session
             var session = await TryInitiateSession(visabApi).ConfigureAwait(false);
             if (session == null)
             {
@@ -83,7 +82,6 @@ namespace Assets.Scripts.VISAB
                 var gameInformation = GameControllerScript.GameInformation;
                 if (gameInformation?.GameState == GameState.RUNNING)
                 {
-                    Debug.Log("Hi");
                     var statistics = GetCurrentStatistics(gameInformation);
                     if (statistics != null)
                     {

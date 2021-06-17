@@ -1910,9 +1910,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7f15a23dfe625140ba41da6a7a42715, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hostName: http://192.168.178.68
+  hostAdress: http://localhost
   port: 2673
-  requestTimeout: 1
+  requestTimeout: 3
 --- !u!4 &386782711
 Transform:
   m_ObjectHideFlags: 0
@@ -3012,7 +3012,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5a714bf21d1039438dcc93cb79e5f37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  speed: 2
 --- !u!4 &599867043
 Transform:
   m_ObjectHideFlags: 0
