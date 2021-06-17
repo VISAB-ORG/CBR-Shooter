@@ -13,6 +13,7 @@ using VISABConnector;
 using System.Threading.Tasks;
 using System.Threading;
 using System.ComponentModel;
+using Assets.Scripts.VISAB.Map;
 
 /**
  * Dieses Skript stellt den zentralen Bezugspunkt des Programmes dar, an dem alle relevanten Daten gespeichert sind.
@@ -24,6 +25,8 @@ public class GameControllerScript : MonoBehaviour
     /// Might rename to GameState
     /// </summary>
     public static GameInformation GameInformation { get; } = new GameInformation();
+
+    #region fields
 
     /**
      * C.W.: Reference to an empty gameObject identifys the prefered camping position
@@ -254,6 +257,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Unity Methode, die beim Aufruf des Skripts *einmalig* ausgeführt wird.
      */
+    #endregion fields
 
     private void Awake()
     {
@@ -356,6 +360,15 @@ public class GameControllerScript : MonoBehaviour
             mCampingPositionTransforms.Add(mCampingPosition.transform.GetChild(i));
         }
 
+        // Initially set the game information
+        var players = CommonUnityFunctions.GetBotPlayersCorrectly();
+        GameInformation.Players.Add(players.Item1);
+        GameInformation.Players.Add(players.Item2);
+        GameInformation.Speed = Time.timeScale;
+        var bounds = MapExtractionHelper.GetBounds(GameObject.Find("Environment"));
+        GameInformation.MapRectangle = new System.Drawing.Rectangle { Height = (int)bounds.size.y, Width = (int)bounds.size.x };
+
+        UpdateGameInformation();
         // Start VISAB api transmission
         var session = VISABHelper.InitiateSession().Result;
         if (session != null)
@@ -365,6 +378,17 @@ public class GameControllerScript : MonoBehaviour
             VISABHelper.StartVISABLoop(session, VisabLoopCTS.Token);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
+    }
+
+    private void UpdateGameInformation()
+    {
+        GameInformation.RoundTime = mRoundDuration - mRoundTimer;
+        GameInformation.AmmunitionPosition = ammuPositionRaw;
+        GameInformation.GameState = mState;
+        GameInformation.HealthPosition = healthPositionRaw;
+        GameInformation.RoundCounter = roundCounter;
+        GameInformation.WeaponPosition = weaponPositionRaw;
+        GameInformation.TotalTime += Time.deltaTime;
     }
 
     /**
@@ -745,22 +769,6 @@ public class GameControllerScript : MonoBehaviour
         checkInput();
 
         UpdateGameInformation();
-    }
-
-    private void UpdateGameInformation()
-    {
-        var players = CommonUnityFunctions.GetBotPlayersCorrectly();
-
-        GameInformation.RoundTime = mRoundDuration - mRoundTimer;
-        GameInformation.AmmunitionPosition = ammuPositionRaw;
-        GameInformation.CBRPlayer = players.Item1;
-        GameInformation.NonCBRPlayer = players.Item2;
-        GameInformation.GameState = mState;
-        GameInformation.HealthPosition = healthPositionRaw;
-        GameInformation.RoundCounter = roundCounter;
-        GameInformation.WeaponPosition = weaponPositionRaw;
-        GameInformation.TotalTime += Time.deltaTime;
-        GameInformation.Speed = Time.timeScale;
     }
 
     /*

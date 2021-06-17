@@ -1,5 +1,8 @@
 ﻿using Assets.Scripts.AI;
 using Assets.Scripts.Model;
+using Assets.Scripts.VISAB.Model;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,7 +16,7 @@ namespace Assets.Scripts.VISAB
         /// <summary>
         /// How many times to send statistics per ingame second.
         /// </summary>
-        public const int SendPerSecond = 10;
+        private const int SendPerSecond = 10;
 
         public static string HostAdress { get; set; }
 
@@ -21,41 +24,22 @@ namespace Assets.Scripts.VISAB
 
         public static int RequestTimeout { get; set; }
 
-        public static VISABStatistics GetCurrentStatistics(GameInformation gameInformation)
-        {
-            if (gameInformation == null)
-                return null;
-
-            var statistics = new VISABStatistics
-            {
-                RoundTime = gameInformation.RoundTime,
-                AmmunitionPosition = Vector3ToVector2(gameInformation.AmmunitionPosition),
-                HealthPosition = Vector3ToVector2(gameInformation.HealthPosition),
-                WeaponPosition = Vector3ToVector2(gameInformation.WeaponPosition),
-                Round = gameInformation.RoundCounter,
-                TotalTime = gameInformation.TotalTime,
-                Speed = gameInformation.Speed
-            };
-
-            statistics.Players.Add(ExtractPlayerInformation(gameInformation.CBRPlayer));
-            statistics.Players.Add(ExtractPlayerInformation(gameInformation.NonCBRPlayer));
-
-            return statistics;
-        }
-
         public static async Task<IVISABSession> InitiateSession()
         {
+            Debug.Log($"Using VISABConnector version {VISABApi.ConnectorVersion}");
+
             Debug.Log($"Instantiating VISABApi with HostAdress: {HostAdress}, Port: {Port}, RequestTimeout: {RequestTimeout}");
             var visabApi = new VISABApi(HostAdress, Port, RequestTimeout);
 
+            var metaInformation = CollectMetaInformation();
+
             Debug.Log("Starting to initiate Session with VISAB WebApi.");
             // Initializes the VISAB transmission session
-            var session = await TryInitiateSession(visabApi).ConfigureAwait(false);
+            var session = await TryInitiateSession(visabApi, metaInformation).ConfigureAwait(false);
             if (session == null)
             {
-                // TODO: Start VISAB
-                // VISABApi.StartVISAB("");
-                session = await TryInitiateSession(visabApi).ConfigureAwait(false);
+                // TODO: Start VISAB VISABApi.StartVISAB("");
+                session = await TryInitiateSession(visabApi, metaInformation).ConfigureAwait(false);
             }
 
             // If session is still null, return
@@ -104,34 +88,41 @@ namespace Assets.Scripts.VISAB
                 await Task.Delay(20);
             }
 
-
             // Close the VISAB api session
             Debug.Log($"Closing VISAB WebApi session! SessionId:{session.SessionId}");
             await session.CloseSession();
             Debug.Log($"Closed session!");
         }
 
-        private static async Task<IVISABSession> TryInitiateSession(VISABApi api)
+        private static VISABMetaInformation CollectMetaInformation()
         {
-            var response = await api.InitiateSession("CBRShooter").ConfigureAwait(false);
-            if (!response.IsSuccess)
+            var gameInformation = GameControllerScript.GameInformation;
+            if (gameInformation == null)
             {
-                Debug.Log("Couldent initialize VISAB api session! Reason:\n");
-                Debug.Log(response.ErrorMessage);
-
+                Debug.Log("Gameinformation was null when trying to get meta information.");
                 return null;
             }
-            else
+
+            var playerInformation = new Dictionary<string, string>();
+            foreach (var player in gameInformation.Players)
             {
-                Debug.Log($"Initialized Session with VISAB WebApi! SessionId given:{response.Content.SessionId}");
-                return response.Content;
+                if (player.mIsHumanControlled)
+                    playerInformation[player.mName] = ControlledBy.Human;
+                else if (player.mCBR)
+                    playerInformation[player.mName] = ControlledBy.CBR;
+                else
+                    playerInformation[player.mName] = ControlledBy.Script;
             }
+
+            return new VISABMetaInformation
+            {
+                GameSpeed = gameInformation.Speed,
+                PlayerCount = gameInformation.Players.Count,
+                PlayerInformation = playerInformation,
+                MapRectangle = gameInformation.MapRectangle
+            };
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="player"></param>
-        /// <returns></returns>
         private static PlayerInformation ExtractPlayerInformation(Player player)
         {
             var plan = "";
@@ -143,11 +134,9 @@ namespace Assets.Scripts.VISAB
             return new PlayerInformation
             {
                 Health = (uint)player.mPlayerHealth,
-                RelativeHealth = (float)player.mPlayerHealth / (float)Player.mMaxLife,
+                RelativeHealth = player.mPlayerHealth / (float)Player.mMaxLife,
                 MagazineAmmunition = (uint)player.mEquippedWeapon.mCurrentMagazineAmmu,
                 Name = player.mName,
-                IsCBR = player.mCBR,
-                IsHumanController = player.mIsHumanControlled,
                 Plan = plan,
                 Weapon = player.mEquippedWeapon.mName,
                 Statistics = new PlayerStatistics
@@ -159,9 +148,48 @@ namespace Assets.Scripts.VISAB
             };
         }
 
+        private static VISABStatistics GetCurrentStatistics(GameInformation gameInformation)
+        {
+            if (gameInformation == null)
+            {
+                Debug.Log("Gameinformation was null when trying to get current statistics.");
+                return null;
+            }
+
+            var statistics = new VISABStatistics
+            {
+                RoundTime = gameInformation.RoundTime,
+                AmmunitionPosition = Vector3ToVector2(gameInformation.AmmunitionPosition),
+                HealthPosition = Vector3ToVector2(gameInformation.HealthPosition),
+                WeaponPosition = Vector3ToVector2(gameInformation.WeaponPosition),
+                Round = gameInformation.RoundCounter,
+                TotalTime = gameInformation.TotalTime
+            };
+
+            foreach (var player in gameInformation.Players)
+                statistics.Players.Add(ExtractPlayerInformation(player));
+
+            return statistics;
+        }
+
+        private static async Task<IVISABSession> TryInitiateSession(VISABApi api, VISABMetaInformation metaInformation)
+        {
+            var response = await api.InitiateSession(metaInformation).ConfigureAwait(false);
+            if (!response.IsSuccess)
+            {
+                Debug.Log($"Couldent initialize VISAB api session! Reason:\n{response.ErrorMessage}");
+                return null;
+            }
+            else
+            {
+                Debug.Log($"Initialized Session with VISAB WebApi! SessionId given:{response.Content.SessionId}");
+                return response.Content;
+            }
+        }
+
         /// <summary>
-        /// Transforms a Unity Vector3 struct into a System.Numerics.Vector2 The Unity Vector3 y
-        /// coordinate is thrown away, with its z property becoming the new Y.
+        /// Transforms a Unity Vector3 into a System.Numerics.Vector2. The Unity Vector3 z
+        /// coordinate is thrown away.
         /// </summary>
         /// <param name="unityVector">The unity vector</param>
         /// <returns></returns>
@@ -170,7 +198,7 @@ namespace Assets.Scripts.VISAB
             return new System.Numerics.Vector2
             {
                 X = unityVector.x,
-                Y = unityVector.z
+                Y = unityVector.y
             };
         }
     }

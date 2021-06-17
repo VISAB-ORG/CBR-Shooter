@@ -6,16 +6,6 @@ namespace Assets.Scripts.VISAB
     {
         public uint Health { get; set; }
 
-        /// <summary>
-        /// If the player is controlled by a CBR system
-        /// </summary>
-        public bool IsCBR { get; set; }
-
-        /// <summary>
-        /// If the player is controlled by a human
-        /// </summary>
-        public bool IsHumanController { get; internal set; }
-
         public uint MagazineAmmunition { get; set; }
 
         public string Name { get; set; }
