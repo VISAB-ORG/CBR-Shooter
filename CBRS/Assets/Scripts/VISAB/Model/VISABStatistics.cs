@@ -4,17 +4,12 @@ using VISABConnector;
 
 namespace Assets.Scripts.VISAB
 {
-    /// <summary>
-    /// TODO: Use relative vectors here?
-    /// </summary>
     public class VISABStatistics : IVISABStatistics
     {
         /// <summary>
         /// The position of the ammunition item
         /// </summary>
         public Vector2 AmmunitionPosition { get; set; }
-
-        public string Game => "CBRShooter";
 
         /// <summary>
         /// The position of the health item
@@ -40,12 +35,6 @@ namespace Assets.Scripts.VISAB
         /// The cumulated time in seconds over all rounds
         /// </summary>
         public float TotalTime { get; set; }
-
-        /// <summary>
-        /// The speed at which the game is played.
-        /// 1 is normal, 2 is twice and so on.
-        /// </summary>
-        public float Speed { get; set; }
 
         /// <summary>
         /// The position of the weapon item
