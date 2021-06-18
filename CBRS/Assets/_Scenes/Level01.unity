@@ -1907,12 +1907,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 386782709}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7f15a23dfe625140ba41da6a7a42715, type: 3}
+  m_Script: {fileID: 11500000, guid: 492be6dbe1c57904f9bbf52b3ce16a01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hostAdress: http://localhost
   port: 2673
-  requestTimeout: 3
+  requestTimeout: 1
 --- !u!4 &386782711
 Transform:
   m_ObjectHideFlags: 0
@@ -3009,10 +3009,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 599867041}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5a714bf21d1039438dcc93cb79e5f37, type: 3}
+  m_Script: {fileID: 11500000, guid: af25331c5a5b37e44aa299c0a2a4ca59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 2
+  speed: 1
 --- !u!4 &599867043
 Transform:
   m_ObjectHideFlags: 0
