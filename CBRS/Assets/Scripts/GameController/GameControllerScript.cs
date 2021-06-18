@@ -1,28 +1,25 @@
-﻿using UnityEngine;
-using System;
-using System.Collections.Generic;
+﻿using Assets.Scripts.AI;
+using Assets.Scripts.CMAS;
 using Assets.Scripts.Model;
 using Assets.Scripts.Util;
-using Assets.Scripts.CMAS;
-using System.Collections;
-using Assets.Scripts.AI;
-using UnityEngine.AI;
-using Assets.Scripts;
 using Assets.Scripts.VISAB;
-using VISABConnector;
-using System.Threading.Tasks;
-using System.Threading;
-using System.ComponentModel;
 using Assets.Scripts.VISAB.Map;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using UnityEngine;
+using UnityEngine.AI;
+using VISABConnector;
 
 /**
  * Dieses Skript stellt den zentralen Bezugspunkt des Programmes dar, an dem alle relevanten Daten gespeichert sind.
  */
+
 public class GameControllerScript : MonoBehaviour
 {
     /// <summary>
-    /// Represents the current state of the game
-    /// Might rename to GameState
+    /// Represents the current state of the game Might rename to GameState
     /// </summary>
     public static GameInformation GameInformation { get; } = new GameInformation();
 
@@ -62,7 +59,7 @@ public class GameControllerScript : MonoBehaviour
      * C.W.: Reference to the CBR player in the game.
      */
     private Player mCBRPlayer;
-    /* 
+    /*
      * C.W.: SupportVariable which is used to implement the round based setup.
      * Indicates the current RoundTimer.
      */
@@ -73,7 +70,7 @@ public class GameControllerScript : MonoBehaviour
      */
     public Material mCBRMaterial;
     /**
-     * C.W.: Integer which indicates the round duration time in seconds before a round ends. 
+     * C.W.: Integer which indicates the round duration time in seconds before a round ends.
      * A round will only be ended automatically if no player frags the other one.
      * The player with more health points gets a pseudoFrag.
      */
@@ -113,6 +110,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Variable, die den Timestamp beim Spielstart darstellt.
      */
+
     public static DateTime mGameStart { get; private set; }
     /**
      * Wird zur Identifizierung des CBR-Players verwendet.
@@ -131,13 +129,16 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Enum der den Status des Spiels darstellt (Laufend, Pausiert).
      */
+
     public enum GameState
     {
         PAUSED, RUNNING
     }
+
     /**
      * Dieser Wert gibt an, wie viele Sekunden vergehen, bis ein toter Spieler reanimiert wird (Standard: 3).
      */
+
     public static float mRespawnTime { get; private set; }
     /**
      * Status des Spiels.
@@ -154,37 +155,45 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Liste, die alle Spawnpoints der Munitionskiste beinhaltet.
      */
+
     public static List<Transform> mWeaponsCrateSpawnPoints { get; private set; }
     /**
      * Liste, die alle Spawnpoints des Herzcontainers beinhaltet.
      */
+
     public static List<Transform> mHealthSpawnPoints { get; private set; }
     /**
      * Liste, die alle Spawnpoints der Spieler beinhaltet.
      */
+
     public static List<Transform> mSpawnPoints { get; private set; }
     /**
      * Liste, die alle Spawnpoints der zweiten Waffe beinhaltet.
      */
+
     public static List<Transform> mM4a1SpawnPoints { get; private set; }
     /**
      * Liste, die alle Spieler beinhaltet.
      */
+
     public static List<Player> mPlayers { get; private set; }
 
     /**
      * Vector3 mit Koordinaten für den Spawnpunkt Herzcontainer.
      */
+
     public static Vector3 healthPositionRaw { get; set; }
 
     /**
     * Vector3 mit Koordinaten für den Spawnpunkt Ammucontainer.
     */
+
     public static Vector3 ammuPositionRaw { get; set; }
 
     /**
     * Vector3 mit Koordinaten für den Spawnpunkt Waffe.
     */
+
     public static Vector3 weaponPositionRaw { get; set; }
     /**
      * Variable, welche die Information hält, wie viele Spieler am Spiel teilnehmen.
@@ -209,6 +218,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Die Reichweite der Waffen.
      */
+
     public float mRange { get; set; }
     /**
      * Instanziierung des Prefabs der Munitionskiste.
@@ -237,6 +247,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Der menschliche Spieler verfügt über ein HUD.
      */
+
     public static GameObject hudCanvas { get; private set; }
     /**
      * Zeit in Sekunden, bis eine neue Waffe spawnt.
@@ -257,6 +268,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Unity Methode, die beim Aufruf des Skripts *einmalig* ausgeführt wird.
      */
+
     #endregion fields
 
     private void Awake()
@@ -282,8 +294,6 @@ public class GameControllerScript : MonoBehaviour
             "Jane Doe",
             "Chuck Norris"
         };
-
-
 
         mPlayerGameObject = Resources.Load("Prefabs/Player") as GameObject;
         mSpectatorCameraGameObject = Resources.Load("Prefabs/SpectatorCamera") as GameObject;
@@ -313,7 +323,6 @@ public class GameControllerScript : MonoBehaviour
             mHealthSpawnPoints.Add(mHealthSpawnPoint.transform.GetChild(i));
         }
 
-
         mWeaponsCrateSpawnPoints = new List<Transform>();
 
         for (int i = 0; i < mPickUpsSpawnPoints.transform.childCount; ++i)
@@ -329,12 +338,11 @@ public class GameControllerScript : MonoBehaviour
 
         for (int i = 0; i < NumberOfPlayers; ++i)
         {
-            // C.W.: changed from loading the prefab iteself to a new intance of it. 
+            // C.W.: changed from loading the prefab iteself to a new intance of it.
             //The instantiaten is now already done in previous steps and obsolete at this point.
             mPlayers.Add(new Player(mPlayerNames[i], mPlayerGameObject));
             //mPlayers.Add(new Player(mPlayerNames[i], Instantiate<GameObject>(mPlayerGameObject)));
         }
-
 
         if (mSpectatorCamera != null && MainMenueScript.OnlyBots)
         {
@@ -370,13 +378,16 @@ public class GameControllerScript : MonoBehaviour
 
         UpdateGameInformation();
         // Start VISAB api transmission
-        var session = VISABHelper.InitiateSession().Result;
-        if (session != null)
+        LoopBasedSession.MessageAddedEvent += Debug.Log;
+
+        var meta = VISABHelper.CollectMetaInformation();
+        var success = LoopBasedSession.StartSessionAsync(meta).Result;
+        // var session = VISABHelper.InitiateSession().Result;
+        if (success)
         {
             VisabLoopCTS = new CancellationTokenSource();
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            VISABHelper.StartVISABLoop(session, VisabLoopCTS.Token);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            var delay = Mathf.FloorToInt((1000 / VISABHelper.SendPerSecond) / GameInformation.Speed);
+            LoopBasedSession.StartStatisticsLoopAsync(() => VISABHelper.GetCurrentStatistics(GameInformation), () => GameInformation?.GameState == GameState.RUNNING, delay, VisabLoopCTS.Token, queryFile: true);
         }
     }
 
@@ -394,6 +405,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Methode, die zu Beginn des Skripts ausgeführt wird und das Java-Programm, sowie den Agentencontroller inklusive der benötigten Agenten startet.
      */
+
     private void InitAgentsAndCBR()
     {
         bool withWindow = true;
@@ -414,13 +426,14 @@ public class GameControllerScript : MonoBehaviour
     /// </summary>
     public static VISABStatistics VisabStatistics { get; private set; }
 
-    #endregion
+    #endregion VISAB variables
 
     /*
      * C.W.: Method to end a round. Is used when the roundtime is up.
     * The method decides which player won the round by checking who has more healthpoints.
     * In case of equal health points of the players, the round ends with a draw.
     */
+
     private void EndRoundByTime()
     {
         // C.W.: indicates the player with most health points
@@ -439,12 +452,13 @@ public class GameControllerScript : MonoBehaviour
             }
         }
 
-        // C.W.: this array contains the indizes of the players which have the same max amount of health points
+        // C.W.: this array contains the indizes of the players which have the same max amount of
+        // health points
         List<int> drawnPlayers = new List<int>();
         int x = 0;
 
-        // C.W.: double check if more than one player has the same max amount of health points
-        // which would lead to a shared frag or a draw
+        // C.W.: double check if more than one player has the same max amount of health points which
+        // would lead to a shared frag or a draw
         for (int i = 0; i < mPlayers.Count; i++)
         {
             if (mPlayers[i].mPlayerHealth == maxHealthPoints)
@@ -457,8 +471,8 @@ public class GameControllerScript : MonoBehaviour
         if (drawnPlayers.Count > 1)
         {
             // C.W.: We have a draw between the players contained in drawnPlayers
-            // TODO: needs to be processed in further work
-            // right now the game is only optimized for 2 players and shall do nothing in case of a draw.
+            // TODO: needs to be processed in further work right now the game is only optimized for
+            // 2 players and shall do nothing in case of a draw.
 
             Debug.Log("Round ends with a draw. All have " + maxHealthPoints + " HP");
         }
@@ -493,6 +507,7 @@ public class GameControllerScript : MonoBehaviour
     /*
      * C.W.:Reorganized Method to initiate the players and spawns them first time on the map
      */
+
     private void InitiatePlayers()
     {
         foreach (Player player in mPlayers)
@@ -508,10 +523,9 @@ public class GameControllerScript : MonoBehaviour
      * C.W.: Method which starts a new Round and resets respective player values.
      * TODO: Needs to be optimized for more than just these two static players named "John" and "Jane"
     */
+
     public static void StartNewRound()
     {
-
-
         // C.W.: initialize the round timer with set RoundDuration on every start of a new round
         mRoundTimer = mRoundDuration;
         // Counts the rounds
@@ -556,6 +570,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Methode, die einen übergebenen Spieler in der Spielwelt starten lässt.
      */
+
     private void SpawnPlayer(Player player)
     {
         Transform spawnPoint = null;
@@ -578,8 +593,8 @@ public class GameControllerScript : MonoBehaviour
                 spawnPoint = mSpawnPoints[4];
             }
 
-            // C.W.: random selection of a spawn point is disabled
-            // spawnPoint = mSpawnPoints[UnityEngine.Random.Range(0, mSpawnPoints.Count)];
+            // C.W.: random selection of a spawn point is disabled spawnPoint =
+            // mSpawnPoints[UnityEngine.Random.Range(0, mSpawnPoints.Count)];
             Vector3 spawnVector = spawnPoint.position;
 
             var hitColliders = Physics.OverlapSphere(spawnVector, 2);
@@ -622,7 +637,6 @@ public class GameControllerScript : MonoBehaviour
             spawnPointResult = spawnPoint.position;
         }
 
-
         mCameraObject = Instantiate(player.mCamera.gameObject, spawnPoint.position, Quaternion.identity);
         player.mGameObject = Instantiate(player.mGameObject, spawnPointResult, Quaternion.identity);
         player.mIdentifier = mSpawnCounter++;
@@ -637,11 +651,10 @@ public class GameControllerScript : MonoBehaviour
         player.mPlayerShooting = player.mGameObject.AddComponent<PlayerShooting>();
         player.mPlayerShooting.mShootingPlayer = player;
 
-        // C.W.: Highlights the CBR player in pumpkin material
-        // needed to do the modification and one further player.mName check
-        // because the player.mGameObject is instantiated just a few lines earlier.
-        // Its not possible to modify the player game object earlier because at first it is the prefab itself instead
-        // of an instance of it.
+        // C.W.: Highlights the CBR player in pumpkin material needed to do the modification and one
+        // further player.mName check because the player.mGameObject is instantiated just a few
+        // lines earlier. Its not possible to modify the player game object earlier because at first
+        // it is the prefab itself instead of an instance of it.
         if (player.mName == "John Doe")
         {
             player.mGameObject.GetComponentInChildren<SkinnedMeshRenderer>().material = mCBRMaterial;
@@ -653,10 +666,10 @@ public class GameControllerScript : MonoBehaviour
         }
     }
 
-
     /**
      * Delegate-Methode, um zu ermitteln, welcher Spieler beim entsprechenden Mausklick schießen soll.
      */
+
     public void Clicked(object sender, EventArgs e)
     {
         Player player = sender as Player;
@@ -670,6 +683,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Unity Methode
      */
+
     private void FixedUpdate()
     {
         if (MainMenueScript.OnlyBots && mState == GameState.RUNNING)
@@ -682,7 +696,6 @@ public class GameControllerScript : MonoBehaviour
                 tmp.ActivatePlayer();
                 mHumanControlled = tmp;
                 PlayerShooting.mHumanPlayer = mHumanControlled;
-
             }
             else if (Input.GetKeyDown(KeyCode.F2))
             {
@@ -709,7 +722,6 @@ public class GameControllerScript : MonoBehaviour
                 }
 
                 EnableSpectatorCamera();
-
             }
         }
     }
@@ -717,6 +729,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Methode, um die Zuschauerkamera auszuschalten.
      */
+
     private void DisableSpectatorCamera()
     {
         MainMenueScript.OnlyBots = false;
@@ -731,12 +744,13 @@ public class GameControllerScript : MonoBehaviour
 
         hudCanvas.SetActive(true);
     }
+
     /**
      * Methode, um die Zuschauerkamera einzuschalten.
      */
+
     private void EnableSpectatorCamera()
     {
-
         MainMenueScript.OnlyBots = true;
 
         //C.W.: Changed the initial camera position
@@ -754,6 +768,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Unity Methode.
      */
+
     private void Update()
     {
         updateRoundTimer();
@@ -774,6 +789,7 @@ public class GameControllerScript : MonoBehaviour
     /*
     * C.W.: Method updates the display of the current CBR HP.
     */
+
     private void updateCurrentCBRHealthPoints()
     {
         ScoreBoardManager.updateCurrentCBRHP(mCBRPlayer.mPlayerHealth);
@@ -782,13 +798,13 @@ public class GameControllerScript : MonoBehaviour
     /*
     * C.W.: Method starts the round timer and ends round if counter decrements to 0.
     */
+
     private void updateRoundTimer()
     {
         // C.W.: updates the timer value
         mRoundTimer -= Time.deltaTime;
 
-        // C.W.: sets the updated timer in the RoundTimeManager which
-        // causes an UITimer update
+        // C.W.: sets the updated timer in the RoundTimeManager which causes an UITimer update
         RoundTimeManager.mRoundTimeLeft = mRoundTimer;
 
         if (mRoundTimer <= 0)
@@ -796,12 +812,12 @@ public class GameControllerScript : MonoBehaviour
             EndRoundByTime();
             StartNewRound();
         }
-
     }
 
     /*
     * C.W.: Reorganized method to start the different timer for new pickUps
     */
+
     private void restartPickUpTimer()
     {
         if (mWeaponCrateCollected)
@@ -823,6 +839,7 @@ public class GameControllerScript : MonoBehaviour
     /*
      * C.W.: reorganized Method to outsource the input check from update method
      */
+
     private void checkInput()
     {
         if (Input.GetButton("Fire1"))
@@ -841,7 +858,6 @@ public class GameControllerScript : MonoBehaviour
                 StartCoroutine(SwitchWeapon());
             }
         }
-
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -871,6 +887,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Subroutine, um die Waffe zu wechseln.
      */
+
     public IEnumerator SwitchWeapon()
     {
         mIsSwitching = true;
@@ -882,6 +899,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Methode, um das Spiel und den Zeitfluss fortzusetzen.
      */
+
     public void ContinueGame(bool fromScene)
     {
         Time.timeScale = 1;
@@ -893,9 +911,11 @@ public class GameControllerScript : MonoBehaviour
             mGameMenueScript.ToggleGameMenue();
         }
     }
+
     /**
      * Methode, um das Spiel und den Zeitfluss zu stoppen.
      */
+
     public void PauseGame()
     {
         Cursor.lockState = CursorLockMode.Confined;
@@ -907,6 +927,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Diese Unity-Methode wird beim Verlassen des Programms ausgeführt. Hier wird die Java-CBR Applikation beendet.
      */
+
     private void OnApplicationQuit()
     {
 #if UNITY_EDITOR
@@ -920,6 +941,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Methode, um einen Herzcontainer zu spawnen.
      */
+
     private IEnumerator SpawnHealthContainer()
     {
         mHeartCollected = false;
@@ -968,9 +990,9 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Methode, um eine Waffe zu spawnen.
      */
+
     private IEnumerator SpawnM4A1()
     {
-
         mM4a1Collected = false;
         Transform spawnPoint = null;
 
@@ -1017,6 +1039,7 @@ public class GameControllerScript : MonoBehaviour
     /**
      * Methode, um eine Munitionskiste zu spawnen.
      */
+
     private IEnumerator SpawnWeaponsCrate()
     {
         mWeaponCrateCollected = false;
@@ -1047,7 +1070,6 @@ public class GameControllerScript : MonoBehaviour
             }
         }
 
-
         yield return new WaitForSeconds(mWeaponCrateTimer);
 
         if (free)
@@ -1057,13 +1079,12 @@ public class GameControllerScript : MonoBehaviour
             mWeaponCrateGameObject = Instantiate(mWeaponsCrateObject, spawnPoint.position, Quaternion.identity);
             mWeaponCrateGameObject.AddComponent<AmmunitionScript>();
         }
-
-
     }
 
     /**
      * C.W.: Reorganized supporting method to assign the CBRPlayer member variable.
      */
+
     private void AssignCBRPlayer()
     {
         foreach (Player player in mPlayers)

@@ -16,7 +16,7 @@ namespace Assets.Scripts.VISAB
         /// <summary>
         /// How many times to send statistics per ingame second.
         /// </summary>
-        private const int SendPerSecond = 10;
+        public const int SendPerSecond = 10;
 
         public static string HostAdress { get; set; }
 
@@ -94,7 +94,7 @@ namespace Assets.Scripts.VISAB
             Debug.Log($"Closed session!");
         }
 
-        private static VISABMetaInformation CollectMetaInformation()
+        public static VISABMetaInformation CollectMetaInformation()
         {
             var gameInformation = GameControllerScript.GameInformation;
             if (gameInformation == null)
@@ -148,7 +148,7 @@ namespace Assets.Scripts.VISAB
             };
         }
 
-        private static VISABStatistics GetCurrentStatistics(GameInformation gameInformation)
+        public static VISABStatistics GetCurrentStatistics(GameInformation gameInformation)
         {
             if (gameInformation == null)
             {
