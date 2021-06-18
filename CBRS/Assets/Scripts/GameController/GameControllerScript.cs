@@ -377,17 +377,17 @@ public class GameControllerScript : MonoBehaviour
         GameInformation.MapRectangle = new Assets.Scripts.VISAB.Model.Rectangle { Height = (int)bounds.size.y, Width = (int)bounds.size.x };
 
         UpdateGameInformation();
+
         // Start VISAB api transmission
         LoopBasedSession.MessageAddedEvent += Debug.Log;
 
-        var meta = VISABHelper.CollectMetaInformation();
-        var success = LoopBasedSession.StartSessionAsync(meta).Result;
-        // var session = VISABHelper.InitiateSession().Result;
+        var meta = VISABHelper.GetMetaInformation();
+        var success = LoopBasedSession.StartSessionAsync(meta, VISABHelper.HostAdress, VISABHelper.Port, VISABHelper.RequestTimeout).Result;
         if (success)
         {
             VisabLoopCTS = new CancellationTokenSource();
             var delay = Mathf.FloorToInt((1000 / VISABHelper.SendPerSecond) / GameInformation.Speed);
-            LoopBasedSession.StartStatisticsLoopAsync(() => VISABHelper.GetCurrentStatistics(GameInformation), () => GameInformation?.GameState == GameState.RUNNING, delay, VisabLoopCTS.Token, queryFile: true);
+            LoopBasedSession.StartStatisticsLoopAsync(VISABHelper.GetCurrentStatistics, () => GameInformation?.GameState == GameState.RUNNING, delay, VisabLoopCTS.Token, queryFile: true);
         }
     }
 
