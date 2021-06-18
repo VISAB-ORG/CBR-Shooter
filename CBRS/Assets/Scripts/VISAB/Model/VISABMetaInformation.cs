@@ -8,6 +8,12 @@ using VISABConnector;
 
 namespace Assets.Scripts.VISAB.Model
 {
+    public class Rectangle
+    {
+        public int Height { get; set; }
+        public int Width { get; set; }
+    }
+
     public class VISABMetaInformation : IMetaInformation
     {
         public string Game => "CBRShooter";
