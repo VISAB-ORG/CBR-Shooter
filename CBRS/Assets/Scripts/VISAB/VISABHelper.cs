@@ -53,6 +53,14 @@ namespace Assets.Scripts.VISAB
                 return null;
             }
 
+
+            var metaInformation = new VISABMetaInformation
+            {
+                GameSpeed = gameInformation.Speed,
+                PlayerCount = gameInformation.Players.Count,
+                MapRectangle = gameInformation.MapRectangle,
+            };
+
             var playerInformation = new Dictionary<string, string>();
             foreach (var player in gameInformation.Players)
             {
@@ -64,12 +72,25 @@ namespace Assets.Scripts.VISAB
                     playerInformation[player.mName] = ControlledBy.Script;
             }
 
-            return new VISABMetaInformation
+            metaInformation.PlayerInformation = playerInformation;
+
+            var machineGunInfo = GetWeaponInformation(new MachineGun(null));
+            var pistolInfo = GetWeaponInformation(new Pistol(null));
+            metaInformation.WeaponInformation.Add(machineGunInfo.Name, machineGunInfo);
+            metaInformation.WeaponInformation.Add(pistolInfo.Name, pistolInfo);
+
+            return metaInformation;
+        }
+
+        private static WeaponInformation GetWeaponInformation(Weapon weapon)
+        {
+            return new WeaponInformation
             {
-                GameSpeed = gameInformation.Speed,
-                PlayerCount = gameInformation.Players.Count,
-                PlayerInformation = playerInformation,
-                MapRectangle = gameInformation.MapRectangle
+                Name = weapon.mName,
+                Damage = weapon.mDamage,
+                FireRate = weapon.mFireRate,
+                MagazineSize = weapon.mMagazineSize,
+                MaximumAmmunition = weapon.mMaxAmmu
             };
         }
 
@@ -83,16 +104,17 @@ namespace Assets.Scripts.VISAB
 
             return new PlayerInformation
             {
-                Health = (uint)player.mPlayerHealth,
+                Health = player.mPlayerHealth,
                 RelativeHealth = player.mPlayerHealth / (float)Player.mMaxLife,
-                MagazineAmmunition = (uint)player.mEquippedWeapon.mCurrentMagazineAmmu,
+                MagazineAmmunition = player.mEquippedWeapon.mCurrentMagazineAmmu,
+                TotalAmmunition = player.mEquippedWeapon.mCurrentOverallAmmu,
                 Name = player.mName,
                 Plan = plan,
                 Weapon = player.mEquippedWeapon.mName,
                 Statistics = new PlayerStatistics
                 {
-                    Deaths = (uint)player.mStatistics.DeathCount(),
-                    Frags = (uint)player.mStatistics.FragCount(),
+                    Deaths = player.mStatistics.DeathCount(),
+                    Frags = player.mStatistics.FragCount(),
                 },
                 Position = Vector3ToVector2(player.GetPlayerPosition())
             };
