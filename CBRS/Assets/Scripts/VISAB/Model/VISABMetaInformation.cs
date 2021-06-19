@@ -30,5 +30,19 @@ namespace Assets.Scripts.VISAB.Model
         /// </summary>
         public float GameSpeed { get; set; }
 
+        /// <summary>
+        /// Information on all weapons.
+        /// </summary>
+        public IList<WeaponInformation> WeaponInformation { get; set; } = new List<WeaponInformation>();
+
+    }
+
+    public class WeaponInformation
+    {
+        public string Name { get; set; }
+        public int Damage { get; set; }
+        public float FireRate { get; set; }
+        public int MagazineSize { get; set; }
+        public int MaximumAmmunition { get; set; }
     }
 }

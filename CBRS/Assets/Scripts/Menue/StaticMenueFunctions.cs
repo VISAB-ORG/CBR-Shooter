@@ -87,6 +87,9 @@ public class StaticMenueFunctions
      */
     public static T FindComponentInChildWithTag<T>(GameObject parent, string tag) where T : Component
     {
+        if (parent == null)
+            return null;
+
         Transform t = parent.transform;
         foreach (Transform tr in t)
         {
