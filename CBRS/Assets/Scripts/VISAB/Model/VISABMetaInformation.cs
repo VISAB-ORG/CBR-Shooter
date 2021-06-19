@@ -33,7 +33,7 @@ namespace Assets.Scripts.VISAB.Model
         /// <summary>
         /// Information on all weapons.
         /// </summary>
-        public IDictionary<string, WeaponInformation> WeaponInformation { get; set; } = new Dictionary<string, WeaponInformation>();
+        public IList<WeaponInformation> WeaponInformation { get; set; } = new List<WeaponInformation>();
 
     }
 

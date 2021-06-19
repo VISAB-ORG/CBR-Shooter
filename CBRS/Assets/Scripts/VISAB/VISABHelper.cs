@@ -76,8 +76,8 @@ namespace Assets.Scripts.VISAB
 
             var machineGunInfo = GetWeaponInformation(new MachineGun(null));
             var pistolInfo = GetWeaponInformation(new Pistol(null));
-            metaInformation.WeaponInformation.Add(machineGunInfo.Name, machineGunInfo);
-            metaInformation.WeaponInformation.Add(pistolInfo.Name, pistolInfo);
+            metaInformation.WeaponInformation.Add(machineGunInfo);
+            metaInformation.WeaponInformation.Add(pistolInfo);
 
             return metaInformation;
         }
