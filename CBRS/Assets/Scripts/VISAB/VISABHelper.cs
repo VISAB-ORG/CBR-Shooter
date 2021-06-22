@@ -107,7 +107,7 @@ namespace Assets.Scripts.VISAB
                 Health = player.mPlayerHealth,
                 RelativeHealth = player.mPlayerHealth / (float)Player.mMaxLife,
                 MagazineAmmunition = player.mEquippedWeapon.mCurrentMagazineAmmu,
-                TotalAmmunition = player.mEquippedWeapon.mCurrentOverallAmmu,
+                TotalAmmunition = player.mEquippedWeapon.mCurrentTotalAmmu,
                 Name = player.mName,
                 Plan = plan,
                 Weapon = player.mEquippedWeapon.mName,
