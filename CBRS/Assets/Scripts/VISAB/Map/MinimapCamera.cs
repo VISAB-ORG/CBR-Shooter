@@ -12,9 +12,10 @@ public class MinimapCamera : MonoBehaviour
     static int resHeight = 256;
 
 
-    public static void SetupCamera()
+    public static void SetupCamera(GameObject focusObject)
     {
         snapCam = GameObject.Find("Snapshot Camera").GetComponent<Camera>();
+        
         if (snapCam.targetTexture == null)
         {
             snapCam.targetTexture = new RenderTexture(resWidth, resHeight, 24);
@@ -24,6 +25,7 @@ public class MinimapCamera : MonoBehaviour
             resWidth = snapCam.targetTexture.width;
             resHeight = snapCam.targetTexture.height;
         }
+        //FocusOn(focusObject, 2f);
         TakeSnapshot();
 
         snapCam.gameObject.SetActive(false);
@@ -46,6 +48,7 @@ public class MinimapCamera : MonoBehaviour
             snapCam.gameObject.SetActive(false);
         }
     }
+
 
     static string SnapshotName()
     {

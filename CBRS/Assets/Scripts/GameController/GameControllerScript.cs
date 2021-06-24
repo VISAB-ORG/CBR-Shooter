@@ -318,8 +318,7 @@ public class GameControllerScript : MonoBehaviour
             mWeaponsCrateSpawnPoints.Add(mPickUpsSpawnPoints.transform.GetChild(i));
         }
 
-        // Run Snapshot Script
-        TakeSnapshot();
+
 
         // C.W.: Spawning and Creating the players
         mPlayers = new List<Player>();
@@ -359,6 +358,9 @@ public class GameControllerScript : MonoBehaviour
         {
             mCampingPositionTransforms.Add(mCampingPosition.transform.GetChild(i));
         }
+
+        // Run Snapshot Script
+        //TakeSnapshot();
 
         // Start VISAB api transmission
         VisabLoopCTS = new CancellationTokenSource();
@@ -788,7 +790,9 @@ public class GameControllerScript : MonoBehaviour
 
     private void TakeSnapshot()
     {
-        MinimapCamera.SetupCamera(); 
+        var scene = GameObject.Find("Environment");
+        MinimapCamera.SetupCamera(scene); 
+
     }
 
     /*
