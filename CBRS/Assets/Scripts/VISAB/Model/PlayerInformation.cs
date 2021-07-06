@@ -4,9 +4,10 @@ namespace Assets.Scripts.VISAB
 {
     public class PlayerInformation
     {
-        public uint Health { get; set; }
+        public int Health { get; set; }
 
-        public uint MagazineAmmunition { get; set; }
+        public int MagazineAmmunition { get; set; }
+        public int TotalAmmunition { get; set; }
 
         public string Name { get; set; }
 

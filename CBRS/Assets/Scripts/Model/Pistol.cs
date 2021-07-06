@@ -10,7 +10,7 @@ namespace Assets.Scripts.Model
         /**
          * Konstruktor der Klasse, die den super Konstruktor mit allen relevanten Daten aufruft.
          */
-        public Pistol(GameObject player) : base(player, "Pistol", 10, 0.65f, StaticMenueFunctions.FindComponentInChildWithTag<Component>(player, "Pistol").gameObject, 12)
+        public Pistol(GameObject player) : base(player, "Pistol", 10, 0.65f, StaticMenueFunctions.FindComponentInChildWithTag<Component>(player, "Pistol")?.gameObject, 12)
         {
             mInPossess = true;
         }
