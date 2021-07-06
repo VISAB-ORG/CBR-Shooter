@@ -10,8 +10,6 @@ public static class MinimapExtensionMethods
 
         Bounds bounds = renderers.Length > 0 ? renderers[0].bounds : new Bounds();
 
-        //Bounds bounds = renderers.Length > 0 ? renderers.FirstOrDefault().bounds : new Bounds();
-
         for (int i = 1; i < renderers.Length; i++)
         {
             if (renderers[i].enabled)
@@ -29,7 +27,7 @@ public static class MinimapExtensionMethods
         float maxExtent = bounds.extents.magnitude;
         float minDistance = (maxExtent * marginPercentage) / Mathf.Sin(Mathf.Deg2Rad * cam.fieldOfView / 0.5f);
         cam.transform.position = bounds.center + Vector3.up * minDistance;
-        //cam.transform.rotation = turn right 90
+        cam.transform.Rotate(0.0f, 0.0f, 45.0f, Space.Self);
         Debug.Log("GameObj: " + focusedObject + ", coordinates: " + focusedObject.transform.position);
         Debug.Log("Camera: " + cam + ", coordinates: " + cam.transform.position);
         cam.nearClipPlane = minDistance - maxExtent;

@@ -359,9 +359,6 @@ public class GameControllerScript : MonoBehaviour
             mCampingPositionTransforms.Add(mCampingPosition.transform.GetChild(i));
         }
 
-        // Run Snapshot Script
-        //TakeSnapshot();
-
         // Start VISAB api transmission
         VisabLoopCTS = new CancellationTokenSource();
         VISABHelper.StartVISABLoop(VisabLoopCTS.Token);
@@ -733,15 +730,6 @@ public class GameControllerScript : MonoBehaviour
      */
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            var env = GameObject.Find("Floor");
-            var image = MapExtractionHelper.GetSnapshotCenter(GameObjectType.Static, env, 1080, 1080);
-            string path = string.Format("{0}/Snapshots/minimap_{1}.png", Application.dataPath, System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
-            image.SaveAsync(path, ImageEncoding.PNG).Wait();
-            Debug.Log("Snapshot taken");
-        }
-
         updateRoundTimer();
         updateCurrentCBRHealthPoints();
 
@@ -788,12 +776,6 @@ public class GameControllerScript : MonoBehaviour
         ScoreBoardManager.updateCurrentCBRHP(mCBRPlayer.mPlayerHealth);
     }
 
-    private void TakeSnapshot()
-    {
-        var scene = GameObject.Find("Environment");
-        MinimapCamera.SetupCamera(scene); 
-
-    }
 
     /*
     * C.W.: Method starts the round timer and ends round if counter decrements to 0.
