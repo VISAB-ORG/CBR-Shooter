@@ -11,6 +11,10 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.AI;
 using VISABConnector;
+using System.Threading.Tasks;
+using System.Threading;
+using System.ComponentModel;
+using Assets.Scripts.VISAB.Map;
 
 /**
  * Dieses Skript stellt den zentralen Bezugspunkt des Programmes dar, an dem alle relevanten Daten gespeichert sind.
@@ -329,6 +333,8 @@ public class GameControllerScript : MonoBehaviour
         {
             mWeaponsCrateSpawnPoints.Add(mPickUpsSpawnPoints.transform.GetChild(i));
         }
+
+
 
         // C.W.: Spawning and Creating the players
         mPlayers = new List<Player>();
@@ -794,6 +800,7 @@ public class GameControllerScript : MonoBehaviour
     {
         ScoreBoardManager.updateCurrentCBRHP(mCBRPlayer.mPlayerHealth);
     }
+
 
     /*
     * C.W.: Method starts the round timer and ends round if counter decrements to 0.

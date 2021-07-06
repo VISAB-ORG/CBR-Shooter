@@ -16,6 +16,7 @@ TagManager:
   - GunBarrelEnd
   - Machine Gun Collectable
   - Cover
+  - VISAB
   layers:
   - Default
   - TransparentFX
@@ -23,7 +24,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Objects
   - 
   - Floor
   - Shootable
