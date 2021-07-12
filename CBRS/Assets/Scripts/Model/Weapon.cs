@@ -11,6 +11,9 @@ namespace Assets.Scripts.Model
          * Die aktuelle Munition im Magazin.
          */
         public int mCurrentMagazineAmmu { get; set; }
+
+        public int mCurrentTotalAmmu => mCurrentMagazineAmmu + mCurrentOverallAmmu;
+
         /**
          * Reservemunition.
          */
@@ -43,7 +46,7 @@ namespace Assets.Scripts.Model
          * Das 3D-Modell (Prefab) zur Waffe.
          */
         public GameObject mWeaponModel { get; set; }
-        
+
         /**
          * Der Spieler, für den die Waffen verwaltet werden.
          */

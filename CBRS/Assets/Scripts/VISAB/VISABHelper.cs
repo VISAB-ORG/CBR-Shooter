@@ -1,96 +1,99 @@
 ﻿using Assets.Scripts.AI;
 using Assets.Scripts.Model;
-using System.Threading;
-using System.Threading.Tasks;
+using Assets.Scripts.VISAB.Model;
+using System.Collections.Generic;
 using UnityEngine;
-using VISABConnector;
-using static GameControllerScript;
 
 namespace Assets.Scripts.VISAB
 {
     public static class VISABHelper
     {
         /// <summary>
-        /// The delay inbetween sending statistics to VISAB in miliseconds
+        /// How many times to send statistics per ingame second.
         /// </summary>
-        public const int UpdateDelay = 100;
+        public const int SendPerSecond = 10;
+
+        public static string HostAdress { get; set; }
+
+        public static int Port { get; set; }
+
+        public static int RequestTimeout { get; set; }
 
         public static VISABStatistics GetCurrentStatistics()
         {
             var gameInformation = GameControllerScript.GameInformation;
-
             if (gameInformation == null)
+            {
+                Debug.Log("Gameinformation was null when trying to get current statistics.");
                 return null;
+            }
 
-            return new VISABStatistics
+            var statistics = new VISABStatistics
             {
                 RoundTime = gameInformation.RoundTime,
-                CBRPlayer = ExtractPlayerInformation(gameInformation.CBRPlayer),
-                ScriptPlayer = ExtractPlayerInformation(gameInformation.NonCBRPlayer),
                 AmmunitionPosition = Vector3ToVector2(gameInformation.AmmunitionPosition),
                 HealthPosition = Vector3ToVector2(gameInformation.HealthPosition),
                 WeaponPosition = Vector3ToVector2(gameInformation.WeaponPosition),
-                Round = gameInformation.RoundCounter
+                Round = gameInformation.RoundCounter,
+                TotalTime = gameInformation.TotalTime
+            };
+
+            foreach (var player in gameInformation.Players)
+                statistics.Players.Add(ExtractPlayerInformation(player));
+
+            return statistics;
+        }
+
+        public static VISABMetaInformation GetMetaInformation()
+        {
+            var gameInformation = GameControllerScript.GameInformation;
+            if (gameInformation == null)
+            {
+                Debug.Log("Gameinformation was null when trying to get meta information.");
+                return null;
+            }
+
+
+            var metaInformation = new VISABMetaInformation
+            {
+                GameSpeed = gameInformation.Speed,
+                PlayerCount = gameInformation.Players.Count,
+                MapRectangle = gameInformation.MapRectangle,
+            };
+
+            var playerInformation = new Dictionary<string, string>();
+            foreach (var player in gameInformation.Players)
+            {
+                if (player.mIsHumanControlled)
+                    playerInformation[player.mName] = ControlledBy.Human;
+                else if (player.mCBR)
+                    playerInformation[player.mName] = ControlledBy.CBR;
+                else
+                    playerInformation[player.mName] = ControlledBy.Script;
+            }
+
+            metaInformation.PlayerInformation = playerInformation;
+
+            var machineGunInfo = GetWeaponInformation(new MachineGun(null));
+            var pistolInfo = GetWeaponInformation(new Pistol(null));
+            metaInformation.WeaponInformation.Add(machineGunInfo);
+            metaInformation.WeaponInformation.Add(pistolInfo);
+
+            return metaInformation;
+        }
+
+        private static WeaponInformation GetWeaponInformation(Weapon weapon)
+        {
+            return new WeaponInformation
+            {
+                Name = weapon.mName,
+                Damage = weapon.mDamage,
+                FireRate = weapon.mFireRate,
+                MagazineSize = weapon.mMagazineSize,
+                MaximumAmmunition = weapon.mMaxAmmu
             };
         }
 
-        /// <summary>
-        /// Initiates the infinite loop that sends information to the VISAB api. The loop is stopped
-        /// if the given cancellationToken is canceled.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellationToken</param>
-        /// <returns>An awaitable Task</returns>
-        public static async Task StartVISABLoop(CancellationToken cancellationToken)
-        {
-            // Initializes the VISAB transmission session
-            Debug.Log("Starting to initalize Session with VISAB api.");
-            var visabApi = await VISABApi.InitiateSession("CBRShooter");
-            if (visabApi == default)
-            {
-                await Task.Run(async () =>
-                {
-                    while (visabApi == default)
-                    {
-                        Debug.Log("Couldent initialize VISAB api session!");
-                        VISABApi.StartVISAB("TODO:path");
-                        visabApi = await VISABApi.InitiateSession("CBRShooter");
-                    }
-                });
-            }
-
-            // Starts an infinite loop in another thread. The thread is killed, once the
-            // cancellationToken is canceled.
-            await Task.Run(async () =>
-            {
-                while (true)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                        break;
-
-                    if (GameControllerScript.GameInformation.GameState == GameState.RUNNING)
-                    {
-                        var statistics = GameControllerScript.VisabStatistics;
-                        if (statistics != null)
-                        {
-                            if (await visabApi.SendStatistics(statistics))
-                                Debug.Log($"Send statistics to VISAB! Round:{statistics.Round}, Time: {statistics.RoundTime}");
-                            else
-                                break;
-                        }
-                    }
-                    await Task.Delay(UpdateDelay);
-                }
-            });
-
-            // Close the VISAB api session
-            Debug.Log($"Closing VISAB session with id {visabApi.SessionId}!");
-            await visabApi.CloseSession();
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="player"></param>
-        /// <returns></returns>
         private static PlayerInformation ExtractPlayerInformation(Player player)
         {
             var plan = "";
@@ -101,24 +104,25 @@ namespace Assets.Scripts.VISAB
 
             return new PlayerInformation
             {
-                Health = (uint)player.mPlayerHealth,
-                RelativeHealth = (float)player.mPlayerHealth / (float)Player.mMaxLife,
-                MagazineAmmunition = (uint)player.mEquippedWeapon.mCurrentMagazineAmmu,
+                Health = player.mPlayerHealth,
+                RelativeHealth = player.mPlayerHealth / (float)Player.mMaxLife,
+                MagazineAmmunition = player.mEquippedWeapon.mCurrentMagazineAmmu,
+                TotalAmmunition = player.mEquippedWeapon.mCurrentTotalAmmu,
                 Name = player.mName,
                 Plan = plan,
                 Weapon = player.mEquippedWeapon.mName,
                 Statistics = new PlayerStatistics
                 {
-                    Deaths = (uint)player.mStatistics.DeathCount(),
-                    Frags = (uint)player.mStatistics.FragCount(),
+                    Deaths = player.mStatistics.DeathCount(),
+                    Frags = player.mStatistics.FragCount(),
                 },
                 Position = Vector3ToVector2(player.GetPlayerPosition())
             };
         }
 
         /// <summary>
-        /// Transforms a Unity Vector3 struct into a System.Numerics.Vector2 The Unity Vector3 y
-        /// coordinate is thrown away, with its z property becoming the new Y.
+        /// Transforms a Unity Vector3 into a System.Numerics.Vector2. The Unity Vector3 z
+        /// coordinate is thrown away.
         /// </summary>
         /// <param name="unityVector">The unity vector</param>
         /// <returns></returns>
@@ -127,7 +131,7 @@ namespace Assets.Scripts.VISAB
             return new System.Numerics.Vector2
             {
                 X = unityVector.x,
-                Y = unityVector.z
+                Y = unityVector.y
             };
         }
     }

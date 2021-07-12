@@ -1,29 +1,15 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using VISABConnector;
 
 namespace Assets.Scripts.VISAB
 {
-    /// <summary>
-    /// TODO: Use relative vectors here?
-    /// </summary>
     public class VISABStatistics : IVISABStatistics
     {
-        /// <summary>
-        /// The time in seconds since the round has begun
-        /// </summary>
-        public float RoundTime { get; set; }
-
         /// <summary>
         /// The position of the ammunition item
         /// </summary>
         public Vector2 AmmunitionPosition { get; set; }
-
-        /// <summary>
-        /// Information on the player object controlled by the CBR-system
-        /// </summary>
-        public VISAB.PlayerInformation CBRPlayer { get; set; }
-
-        public string Game => "CBRShooter";
 
         /// <summary>
         /// The position of the health item
@@ -31,14 +17,24 @@ namespace Assets.Scripts.VISAB
         public Vector2 HealthPosition { get; set; }
 
         /// <summary>
+        /// Information on all players
+        /// </summary>
+        public IList<PlayerInformation> Players { get; } = new List<PlayerInformation>();
+
+        /// <summary>
         /// The current round
         /// </summary>
         public int Round { get; set; }
 
         /// <summary>
-        /// Information on the player object controlled by the script bot
+        /// The time in seconds since the round has begun
         /// </summary>
-        public VISAB.PlayerInformation ScriptPlayer { get; set; }
+        public float RoundTime { get; set; }
+
+        /// <summary>
+        /// The cumulated time in seconds over all rounds
+        /// </summary>
+        public float TotalTime { get; set; }
 
         /// <summary>
         /// The position of the weapon item
