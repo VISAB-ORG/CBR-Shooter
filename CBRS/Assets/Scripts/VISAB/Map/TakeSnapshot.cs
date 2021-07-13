@@ -6,22 +6,28 @@ using UnityEngine;
 
 namespace Assets.Scripts.VISAB.Map
 {
-    class TakeSnapshot
+    static class SnapshotAPI
     {
-        public List<Settings> SnapList { get; set; }
+        public static List<Settings> SnapList { get; set; }
 
-        public TakeSnapshot()
+        private static SnapshotMethods API = new SnapshotMethods();
+
+        public static Dictionary<Settings, byte[]> TakeSnapshot()
         {
-            foreach(var element in SnapList)
+            Dictionary<Settings, byte[]> imageContainer = new Dictionary<Settings, byte[]>();
+
+            foreach (var element in SnapList)
             {
                 if (element.HasToBeInstantiated)
                 {
-
+                    API.SnapInstantiatedObj(element);
                 } else
                 {
-                   
+                    API.SnapExistingObj(element);
                 }
             }
+
+            return imageContainer; 
         }
 
 

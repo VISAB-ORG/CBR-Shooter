@@ -17,17 +17,15 @@ public static class MinimapExtensionMethods
                 bounds.Encapsulate(renderers[i].bounds);
             }
         }
-        
-
         return bounds;
     }
-    public static void FocusOn(this Camera cam, GameObject focusedObject, float marginPercentage, float rotationAngle)
+    public static void FocusOn(this Camera cam, GameObject focusedObject, float marginPercentage, Vector3 rotationAngle)
     {
         Bounds bounds = focusedObject.GetBoundsWithChildren();
         float maxExtent = bounds.extents.magnitude;
         float minDistance = (maxExtent * marginPercentage) / Mathf.Sin(Mathf.Deg2Rad * cam.fieldOfView / 0.5f);
         cam.transform.position = bounds.center + Vector3.up * minDistance;
-        cam.transform.Rotate(0.0f, 0.0f, rotationAngle, Space.Self);
+        cam.transform.Rotate(rotationAngle.x, rotationAngle.y, rotationAngle.z, Space.Self);
 
         Debug.Log("GameObj: " + focusedObject + ", coordinates: " + focusedObject.transform.position);
         Debug.Log("Camera: " + cam + ", coordinates: " + cam.transform.position);
