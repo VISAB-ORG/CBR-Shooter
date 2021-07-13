@@ -3,18 +3,15 @@ using Assets.Scripts.CMAS;
 using Assets.Scripts.Model;
 using Assets.Scripts.Util;
 using Assets.Scripts.VISAB;
-using Assets.Scripts.VISAB.Map;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.AI;
 using VISABConnector;
-using System.Threading.Tasks;
-using System.Threading;
-using System.ComponentModel;
-using Assets.Scripts.VISAB.Map;
+using VISABConnector.Unity;
 
 /**
  * Dieses Skript stellt den zentralen Bezugspunkt des Programmes dar, an dem alle relevanten Daten gespeichert sind.
@@ -385,16 +382,29 @@ public class GameControllerScript : MonoBehaviour
         UpdateGameInformation();
 
         // Start VISAB api transmission
-        LoopBasedSession.MessageAddedEvent += Debug.Log;
+        //LoopBasedSession.MessageAddedEvent += Debug.Log;
 
-        var meta = VISABHelper.GetMetaInformation();
-        var success = LoopBasedSession.StartSessionAsync(meta, VISABHelper.HostAdress, VISABHelper.Port, VISABHelper.RequestTimeout).Result;
-        if (success)
+        //var meta = VISABHelper.GetMetaInformation();
+        //var success = LoopBasedSession.StartSessionAsync(meta, VISABHelper.HostAdress, VISABHelper.Port, VISABHelper.RequestTimeout).Result;
+        //if (success)
+        //{
+        //    VisabLoopCTS = new CancellationTokenSource();
+        //    var delay = Mathf.FloorToInt((1000 / VISABHelper.SendPerSecond) / GameInformation.Speed);
+        //    LoopBasedSession.StartStatisticsLoopAsync(VISABHelper.GetCurrentStatistics, () => GameInformation?.GameState == GameState.RUNNING, delay, VisabLoopCTS.Token, queryFile: true);
+        //}
+
+        // TODO: Test images
+        var camera = GameObject.Find("SnapSpawn").GetComponent<Camera>();
+        var settings = new SnapshotConfiguration
         {
-            VisabLoopCTS = new CancellationTokenSource();
-            var delay = Mathf.FloorToInt((1000 / VISABHelper.SendPerSecond) / GameInformation.Speed);
-            LoopBasedSession.StartStatisticsLoopAsync(VISABHelper.GetCurrentStatistics, () => GameInformation?.GameState == GameState.RUNNING, delay, VisabLoopCTS.Token, queryFile: true);
-        }
+            GameObjectId = "Environment",
+            ImageHeight = 1024,
+            ImageWidth = 1024,
+            CameraOffset = 10f
+        };
+
+        var bytes = ImageCreator.TakeSnapshot(settings, null);
+        System.IO.File.WriteAllBytes(@$"C:\Users\moritz\Desktop\CBR-Shooter\CBRS\Assets\Scripts\VISAB\{Path.GetRandomFileName()}.png", bytes);
     }
 
     private void UpdateGameInformation()
