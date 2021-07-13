@@ -21,13 +21,14 @@ public static class MinimapExtensionMethods
 
         return bounds;
     }
-    public static void FocusOn(this Camera cam, GameObject focusedObject, float marginPercentage)
+    public static void FocusOn(this Camera cam, GameObject focusedObject, float marginPercentage, float rotationAngle)
     {
         Bounds bounds = focusedObject.GetBoundsWithChildren();
         float maxExtent = bounds.extents.magnitude;
         float minDistance = (maxExtent * marginPercentage) / Mathf.Sin(Mathf.Deg2Rad * cam.fieldOfView / 0.5f);
         cam.transform.position = bounds.center + Vector3.up * minDistance;
-        cam.transform.Rotate(0.0f, 0.0f, 45.0f, Space.Self);
+        cam.transform.Rotate(0.0f, 0.0f, rotationAngle, Space.Self);
+
         Debug.Log("GameObj: " + focusedObject + ", coordinates: " + focusedObject.transform.position);
         Debug.Log("Camera: " + cam + ", coordinates: " + cam.transform.position);
         cam.nearClipPlane = minDistance - maxExtent;

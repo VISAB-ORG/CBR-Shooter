@@ -1,3 +1,4 @@
+using Assets.Scripts.VISAB.Map;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,7 +17,6 @@ public class VISAB_GameObjectExtraction : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //StartCoroutine(ExtractionRoutine());
         StartCoroutine(MappingExtractionRoutine());
     }
 
@@ -26,13 +26,13 @@ public class VISAB_GameObjectExtraction : MonoBehaviour
 
     }
 
-    public void SnapshotObject(GameObject obj)
+    public void SnapshotObject(GameObject obj, float offset, float rotation, int width, int height)
     {
-        minimapCam.FocusOn(obj, 2f);
+        minimapCam.FocusOn(obj, offset, rotation);
 
         if (minimapCam.targetTexture == null)
         {
-            minimapCam.targetTexture = new RenderTexture(resWidth, resHeight, 24);
+            minimapCam.targetTexture = new RenderTexture(width, height, 24);
         }
         else
         {
@@ -42,16 +42,61 @@ public class VISAB_GameObjectExtraction : MonoBehaviour
 
         if (minimapCam.gameObject.activeInHierarchy)
         {
-            Texture2D snapshot = new Texture2D(resWidth, resHeight, TextureFormat.ARGB32, false);
+            Texture2D snapshot = new Texture2D(width, height, TextureFormat.ARGB32, false);
             minimapCam.Render();
             RenderTexture.active = minimapCam.targetTexture;
-            snapshot.ReadPixels(new Rect(0, 0, resWidth, resHeight), 0, 0);
+            snapshot.ReadPixels(new Rect(0, 0, width, height), 0, 0);
             byte[] bytes = snapshot.EncodeToPNG();
             string fileName = MinimapExtensionMethods.SnapshotName(resWidth, resHeight);
             System.IO.File.WriteAllBytes(fileName, bytes);
-            Debug.Log("Snapshot taken");
+            Debug.Log(obj.name + "Snapshot taken");
 
         }
+    }
+
+    public IEnumerator SnapInstantiatedObj(Settings obj)
+    {
+        yield return new WaitForSeconds(2);
+        int oldMask = minimapCam.cullingMask;
+        spawnPoint = GameObject.Find("SnapSpawn").transform.position;
+
+        minimapCam = GameObject.Find("Minimap Camera").GetComponent<Camera>();
+        minimapCam.gameObject.SetActive(true);
+
+        var loadedObj = Resources.Load(obj.PrefabPath) as GameObject;
+        loadedObj = Instantiate(loadedObj, spawnPoint, Quaternion.identity);
+
+        loadedObj.SetActive(true);
+
+        loadedObj.layer = LayerMask.NameToLayer("Shootable");
+
+        minimapCam.orthographic = false;
+        minimapCam.cullingMask = 1 << LayerMask.NameToLayer("Shootable");
+
+        SnapshotObject(loadedObj, obj.CamOffset, obj.Rotation, obj.SizeWidth, obj.SizeHeight);
+        yield return new WaitForSeconds(1);
+        loadedObj.SetActive(false);
+
+    }
+
+    public IEnumerator SnapExistingObj(Settings obj)
+    {
+        yield return new WaitForSeconds(2);
+        int oldMask = minimapCam.cullingMask;
+
+        var spawnedObj = GameObject.Find(obj.GameObjectID);
+
+        minimapCam.orthographic = true;
+
+        if (spawnedObj.name.Contains("Player"))
+        {
+            minimapCam.orthographic = false;
+            minimapCam.cullingMask = 1 << LayerMask.NameToLayer("Shootable");
+        }
+
+        SnapshotObject(spawnedObj, obj.CamOffset, obj.Rotation, obj.SizeWidth, obj.SizeHeight);
+
+        minimapCam.cullingMask = oldMask;
     }
 
     IEnumerator MappingExtractionRoutine()
@@ -62,6 +107,8 @@ public class VISAB_GameObjectExtraction : MonoBehaviour
             yield return new WaitForSeconds(4);
 
             spawnPoint = GameObject.Find("SnapSpawn").transform.position;
+
+            Debug.Log("Location" + spawnPoint);
 
             int oldMask = minimapCam.cullingMask;
 
@@ -77,7 +124,9 @@ public class VISAB_GameObjectExtraction : MonoBehaviour
                 if (dic.Value != null)
                 {
                     var instObj = Resources.Load(dic.Value) as GameObject;
-                    Instantiate(instObj, spawnPoint, Quaternion.identity);
+                    instObj = Instantiate(instObj, spawnPoint, Quaternion.identity);
+
+                    instObj.SetActive(true);
 
                     instObj.layer = LayerMask.NameToLayer("Shootable");
 
@@ -85,7 +134,7 @@ public class VISAB_GameObjectExtraction : MonoBehaviour
                     minimapCam.cullingMask = 1 << LayerMask.NameToLayer("Shootable");
 
 
-                    SnapshotObject(instObj);
+                    SnapshotObject(instObj, 2f, 45f, 1024, 1024);
                     yield return new WaitForSeconds(1);
                     instObj.SetActive(false);
                 }
@@ -101,11 +150,12 @@ public class VISAB_GameObjectExtraction : MonoBehaviour
                         minimapCam.cullingMask = 1 << LayerMask.NameToLayer("Shootable");
                     }
 
-                    SnapshotObject(spawnedObj);
+                    SnapshotObject(spawnedObj, 2f, 45f, 1024, 1024);
                     minimapCam.cullingMask = oldMask;
                 }
             }
             flag = true;
+            Debug.Log("Job Done. Numbers of GameObjects snapshotted: " + mappedGameObj.getDict().Count);
         }
 
 
