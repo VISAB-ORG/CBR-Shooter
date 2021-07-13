@@ -379,8 +379,8 @@ public class GameControllerScript : MonoBehaviour
         GameInformation.Players.Add(players.Item1);
         GameInformation.Players.Add(players.Item2);
         GameInformation.Speed = Time.timeScale;
-        var bounds = MapExtractionHelper.GetBounds(GameObject.Find("Environment"));
-        GameInformation.MapRectangle = new Assets.Scripts.VISAB.Model.Rectangle { Height = (int)bounds.size.y, Width = (int)bounds.size.x };
+        //var bounds = MapExtractionHelper.GetBounds(GameObject.Find("Environment"));
+        //GameInformation.MapRectangle = new Assets.Scripts.VISAB.Model.Rectangle { Height = (int)bounds.size.y, Width = (int)bounds.size.x };
 
         UpdateGameInformation();
 
