@@ -7261,7 +7261,7 @@ GameObject:
   - component: {fileID: 1988104855}
   - component: {fileID: 1988104856}
   m_Layer: 0
-  m_Name: LevelExtentLeft
+  m_Name: LevelExtentBottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
