@@ -11,7 +11,7 @@ public class GameInformation
 {
     public IList<Player> Players { get; set; } = new List<Player>();
 
-    public Assets.Scripts.VISAB.Model.Rectangle MapRectangle { get; set; }
+    public Assets.Scripts.VISAB.Model.MapRectangle MapRectangle { get; set; }
 
     public float Speed { get; set; }
 

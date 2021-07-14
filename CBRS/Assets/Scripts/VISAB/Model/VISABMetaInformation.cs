@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using VISABConnector;
 
 namespace Assets.Scripts.VISAB.Model
 {
-    public class Rectangle
+    public class MapRectangle
     {
+        public Vector2 TopLeftAnchorPoint { get; set; }
         public int Height { get; set; }
         public int Width { get; set; }
     }
@@ -20,7 +22,7 @@ namespace Assets.Scripts.VISAB.Model
 
         public int PlayerCount { get; set; }
 
-        public Rectangle MapRectangle { get; set; }
+        public MapRectangle MapRectangle { get; set; }
 
         public IDictionary<string, string> PlayerInformation { get; set; } = new Dictionary<string, string>();
 

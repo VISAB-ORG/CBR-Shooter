@@ -376,35 +376,38 @@ public class GameControllerScript : MonoBehaviour
         GameInformation.Players.Add(players.Item1);
         GameInformation.Players.Add(players.Item2);
         GameInformation.Speed = Time.timeScale;
-        //var bounds = MapExtractionHelper.GetBounds(GameObject.Find("Environment"));
-        //GameInformation.MapRectangle = new Assets.Scripts.VISAB.Model.Rectangle { Height = (int)bounds.size.y, Width = (int)bounds.size.x };
+
+        var bounds = GameObject.Find("Environment").GetBoundsWithChildren();
+        var anchorPoint = new System.Numerics.Vector2 { X = bounds.min.z, Y = bounds.min.x };
+        GameInformation.MapRectangle = new Assets.Scripts.VISAB.Model.MapRectangle { Height = (int)bounds.size.x, Width = (int)bounds.size.z, TopLeftAnchorPoint = anchorPoint };
 
         UpdateGameInformation();
 
-        // Start VISAB api transmission
-        //LoopBasedSession.MessageAddedEvent += Debug.Log;
+        //Start VISAB api transmission
+        LoopBasedSession.MessageAddedEvent += Debug.Log;
 
-        //var meta = VISABHelper.GetMetaInformation();
-        //var success = LoopBasedSession.StartSessionAsync(meta, VISABHelper.HostAdress, VISABHelper.Port, VISABHelper.RequestTimeout).Result;
-        //if (success)
-        //{
-        //    VisabLoopCTS = new CancellationTokenSource();
-        //    var delay = Mathf.FloorToInt((1000 / VISABHelper.SendPerSecond) / GameInformation.Speed);
-        //    LoopBasedSession.StartStatisticsLoopAsync(VISABHelper.GetCurrentStatistics, () => GameInformation?.GameState == GameState.RUNNING, delay, VisabLoopCTS.Token, queryFile: true);
-        //}
+        var meta = VISABHelper.GetMetaInformation();
+        var success = LoopBasedSession.StartSessionAsync(meta, VISABHelper.HostAdress, VISABHelper.Port, VISABHelper.RequestTimeout).Result;
+        if (success)
+        {
+            VisabLoopCTS = new CancellationTokenSource();
+            var delay = Mathf.FloorToInt((1000 / VISABHelper.SendPerSecond) / GameInformation.Speed);
+            LoopBasedSession.StartStatisticsLoopAsync(VISABHelper.GetCurrentStatistics, () => GameInformation?.GameState == GameState.RUNNING, delay, VisabLoopCTS.Token, queryFile: true);
+        }
 
         // TODO: Test images
-        var camera = GameObject.Find("SnapSpawn").GetComponent<Camera>();
-        var settings = new SnapshotConfiguration
-        {
-            GameObjectId = "Environment",
-            ImageHeight = 1024,
-            ImageWidth = 1024,
-            CameraOffset = 10f
-        };
+        //var camera = GameObject.Find("SnapSpawn").GetComponent<Camera>();
+        //var settings = new SnapshotConfiguration
+        //{
+        //    GameObjectId = "Environment",
+        //    ImageHeight = 1024,
+        //    ImageWidth = 1024,
+        //    CameraOffset = 10f,
+        //    Orthographic = true
+        //};
 
-        var bytes = ImageCreator.TakeSnapshot(settings, null);
-        System.IO.File.WriteAllBytes(@$"C:\Users\moritz\Desktop\CBR-Shooter\CBRS\Assets\Scripts\VISAB\{Path.GetRandomFileName()}.png", bytes);
+        //var bytes = ImageCreator.TakeSnapshot(settings, null);
+        //System.IO.File.WriteAllBytes(@$"C:\Users\moritz\Desktop\CBR-Shooter\CBRS\Assets\Scripts\VISAB\{Path.GetRandomFileName()}.png", bytes);
     }
 
     private void UpdateGameInformation()

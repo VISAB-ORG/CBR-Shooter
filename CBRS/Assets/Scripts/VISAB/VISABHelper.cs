@@ -121,17 +121,16 @@ namespace Assets.Scripts.VISAB
         }
 
         /// <summary>
-        /// Transforms a Unity Vector3 into a System.Numerics.Vector2. The Unity Vector3 z
-        /// coordinate is thrown away.
+        /// Transforms a Unity Vector3 into a System.Numerics.Vector2.
         /// </summary>
-        /// <param name="unityVector">The unity vector</param>
-        /// <returns></returns>
-        private static System.Numerics.Vector2 Vector3ToVector2(Vector3 unityVector)
+        /// <param name="in">The unity vector</param>
+        /// <returns>A Vector2 with Vector2.X = in.z, Vector2.Y = in.x</returns>
+        private static System.Numerics.Vector2 Vector3ToVector2(Vector3 @in)
         {
             return new System.Numerics.Vector2
             {
-                X = unityVector.x,
-                Y = unityVector.y
+                X = @in.z,
+                Y = @in.x
             };
         }
     }
