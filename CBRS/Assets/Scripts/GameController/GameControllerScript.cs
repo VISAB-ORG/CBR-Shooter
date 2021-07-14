@@ -378,6 +378,7 @@ public class GameControllerScript : MonoBehaviour
         GameInformation.Speed = Time.timeScale;
 
         var bounds = GameObject.Find("Environment").GetBoundsWithChildren();
+        var topLeftPlayerPos = players.Item2.GetPlayerPosition();
         var anchorPoint = new System.Numerics.Vector2 { X = bounds.min.z, Y = bounds.min.x };
         GameInformation.MapRectangle = new Assets.Scripts.VISAB.Model.MapRectangle { Height = (int)bounds.size.x, Width = (int)bounds.size.z, TopLeftAnchorPoint = anchorPoint };
 
