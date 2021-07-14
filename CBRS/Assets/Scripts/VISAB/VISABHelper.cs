@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.AI;
 using Assets.Scripts.Model;
 using Assets.Scripts.VISAB.Model;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -132,6 +133,20 @@ namespace Assets.Scripts.VISAB
                 X = @in.z,
                 Y = @in.x
             };
+        }
+
+        public static MapRectangle GetMapRectangle()
+        {
+            var bounds = GameObject.Find("Environment").GetBoundsWithChildren();
+
+            var leftBounds = GameObject.Find("LevelExtentLeft").GetComponent<Collider>().bounds;
+
+            var anchorPoint = new System.Numerics.Vector2 { X = leftBounds.max.z, Y = bounds.min.x };
+
+            var realHeight = (int)(bounds.size.x / Math.Sqrt(2));
+            var realWidth = realHeight;
+
+            return new Assets.Scripts.VISAB.Model.MapRectangle { Height = realHeight, Width = realWidth, TopLeftAnchorPoint = anchorPoint };
         }
     }
 }
