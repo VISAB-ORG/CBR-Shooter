@@ -424,6 +424,9 @@ public class GameControllerScript : MonoBehaviour
         var name = SnapshotName(settings2.ImageWidth, settings2.ImageHeight);
 
         File.WriteAllBytes(name, bytes);
+
+        var images = VISABHelper.MakeSnapshots();
+        LoopBasedSession.SendImagesAsync(images);
     }
 
     public static string SnapshotName(int width, int height)

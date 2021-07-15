@@ -1,9 +1,11 @@
 ﻿using Assets.Scripts.AI;
 using Assets.Scripts.Model;
 using Assets.Scripts.VISAB.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using VISABConnector.Unity;
 
 namespace Assets.Scripts.VISAB
 {
@@ -135,6 +137,67 @@ namespace Assets.Scripts.VISAB
             };
         }
 
+        public static VISABImageContainer MakeSnapshots()
+        {
+            Func<string, SnapshotConfiguration> defaultInstantiate = (prefabPath) => new SnapshotConfiguration
+            {
+                ImageHeight = 1024,
+                ImageWidth = 1024,
+                CameraOffset = 2f,
+                Orthographic = true,
+                InstantiationSettings = new InstantiationConfiguration
+                {
+                    PrefabPath = prefabPath,
+                    SpawnLocation = new Vector3(100, 100, 100),
+                    SpawnRotation = Quaternion.identity
+                }
+            };
+
+            Func<string, SnapshotConfiguration> defaultExisting = (gameId) => new SnapshotConfiguration
+            {
+                ImageHeight = 1024,
+                ImageWidth = 1024,
+                CameraOffset = 2f,
+                Orthographic = true,
+                GameObjectId = gameId
+            };
+
+            var prefabPaths = new Dictionary<string, string>
+            {
+                { "WeaponCrate", "Prefabs/WeaponsCrate/WeaponsCrate" },
+                { "M4a1", "Prefabs/M4A1_Collectable" },
+                { "Health", "Prefabs/Health" }
+            };
+
+            var existingIds = new Dictionary<string, string>
+            {
+                { "John Doe", "John Doe" },
+                { "Jane Doe", "Jane Doe" }
+            };
+
+            var images = new VISABImageContainer();
+
+            foreach (var pair in prefabPaths)
+            {
+                var config = defaultInstantiate(pair.Value);
+                var bytes = ImageCreator.TakeSnapshot(config);
+
+                images.StaticObjects.Add(pair.Key, bytes);
+            }
+
+            foreach (var pair in existingIds)
+            {
+                var config = defaultExisting(pair.Value);
+                var bytes = ImageCreator.TakeSnapshot(config);
+
+                images.MoveableObjects.Add(pair.Key, bytes);
+            }
+
+            Debug.Log(JsonConvert.SerializeObject(images));
+
+            return images;
+        }
+
         public static MapRectangle GetMapRectangle()
         {
             var bounds = GameObject.Find("Environment").GetBoundsWithChildren();
@@ -148,7 +211,7 @@ namespace Assets.Scripts.VISAB
 
             return new Assets.Scripts.VISAB.Model.MapRectangle { Height = realHeight, Width = realWidth, TopLeftAnchorPoint = anchorPoint };
         }
-            
+
         public static Bounds GetBoundsWithChildren(this GameObject gameObject)
         {
             Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
