@@ -148,5 +148,21 @@ namespace Assets.Scripts.VISAB
 
             return new Assets.Scripts.VISAB.Model.MapRectangle { Height = realHeight, Width = realWidth, TopLeftAnchorPoint = anchorPoint };
         }
+            
+        public static Bounds GetBoundsWithChildren(this GameObject gameObject)
+        {
+            Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
+
+            Bounds bounds = renderers.Length > 0 ? renderers[0].bounds : new Bounds();
+
+            for (int i = 1; i < renderers.Length; i++)
+            {
+                if (renderers[i].enabled)
+                {
+                    bounds.Encapsulate(renderers[i].bounds);
+                }
+            }
+            return bounds;
+        }
     }
 }
