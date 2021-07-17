@@ -370,11 +370,16 @@ public class GameControllerScript : MonoBehaviour
         {
             mCampingPositionTransforms.Add(mCampingPosition.transform.GetChild(i));
         }
+    }
 
+    public void Start()
+    {
         // Initially set the game information
         var players = CommonUnityFunctions.GetBotPlayersCorrectly();
         GameInformation.Players.Add(players.Item1);
         GameInformation.Players.Add(players.Item2);
+        if (Time.timeScale != SpeedController.Speed)
+            Time.timeScale = SpeedController.Speed;
         GameInformation.Speed = Time.timeScale;
 
         GameInformation.MapRectangle = VISABHelper.GetMapRectangle();
@@ -424,7 +429,6 @@ public class GameControllerScript : MonoBehaviour
         File.WriteAllBytes(name, bytes);
 
         var images = VISABHelper.MakeSnapshots();
-        LoopBasedSession.SendImagesAsync(images);
         LoopBasedSession.SendImagesAsync(images).Wait();
     }
 

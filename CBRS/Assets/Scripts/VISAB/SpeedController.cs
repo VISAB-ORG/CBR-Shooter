@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class SpeedController : MonoBehaviour
 {
-    public float speed;
+    public float speed = 1;
 
-    // Start is called before the first frame update
+    public static float Speed { get; private set; }
+
     void Awake()
     {
         Time.timeScale = speed;
+        Speed = speed;
     }
 
 }
