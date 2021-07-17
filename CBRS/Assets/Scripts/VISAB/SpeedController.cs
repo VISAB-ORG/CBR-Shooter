@@ -7,7 +7,7 @@ public class SpeedController : MonoBehaviour
     public float speed;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         Time.timeScale = speed;
     }

@@ -393,8 +393,6 @@ public class GameControllerScript : MonoBehaviour
             LoopBasedSession.StartStatisticsLoopAsync(VISABHelper.GetCurrentStatistics, () => GameInformation?.GameState == GameState.RUNNING, delay, VisabLoopCTS.Token, queryFile: true);
         }
 
-        // TODO: Test images
-        //var camera = GameObject.Find("SnapSpawn").GetComponent<Camera>();
         var settings = new SnapshotConfiguration
         {
             GameObjectId = "Environment",
@@ -427,6 +425,7 @@ public class GameControllerScript : MonoBehaviour
 
         var images = VISABHelper.MakeSnapshots();
         LoopBasedSession.SendImagesAsync(images);
+        LoopBasedSession.SendImagesAsync(images).Wait();
     }
 
     public static string SnapshotName(int width, int height)
