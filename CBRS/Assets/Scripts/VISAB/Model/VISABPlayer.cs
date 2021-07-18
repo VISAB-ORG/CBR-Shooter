@@ -2,7 +2,7 @@
 
 namespace Assets.Scripts.VISAB
 {
-    public class PlayerInformation
+    public class VISABPlayer
     {
         public int Health { get; set; }
 
@@ -20,7 +20,7 @@ namespace Assets.Scripts.VISAB
 
         public float RelativeHealth { get; set; }
 
-        public VISAB.PlayerStatistics Statistics { get; set; }
+        public VISAB.VISABPlayerStatistics Statistics { get; set; }
 
         public string Weapon { get; set; }
     }

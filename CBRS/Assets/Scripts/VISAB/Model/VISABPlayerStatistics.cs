@@ -1,6 +1,6 @@
 ﻿namespace Assets.Scripts.VISAB
 {
-    public class PlayerStatistics
+    public class VISABPlayerStatistics
     {
         /// <summary>
         /// How often the player has died

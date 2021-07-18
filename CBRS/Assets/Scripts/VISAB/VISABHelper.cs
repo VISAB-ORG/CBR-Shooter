@@ -64,6 +64,7 @@ namespace Assets.Scripts.VISAB
                 MapRectangle = gameInformation.MapRectangle,
             };
 
+            var playerColors = new Dictionary<string, string>();
             var playerInformation = new Dictionary<string, string>();
             foreach (var player in gameInformation.Players)
             {
@@ -73,6 +74,11 @@ namespace Assets.Scripts.VISAB
                     playerInformation[player.mName] = ControlledBy.CBR;
                 else
                     playerInformation[player.mName] = ControlledBy.Script;
+
+                if (player.mName == "Jane Doe")
+                    playerColors[player.mName] = "#B10DC9";
+                else
+                    playerColors[player.mName] = "#FF851B";
             }
 
             metaInformation.PlayerInformation = playerInformation;
@@ -97,7 +103,7 @@ namespace Assets.Scripts.VISAB
             };
         }
 
-        private static PlayerInformation ExtractPlayerInformation(Player player)
+        private static VISABPlayer ExtractPlayerInformation(Player player)
         {
             var plan = "";
             if (!player.mCBR && BotBehaviourScript.ScriptBotPlan != null)
@@ -105,7 +111,7 @@ namespace Assets.Scripts.VISAB
             else if (player.mCBR && player.mPlan != null)
                 plan = player.mPlan.actionsAsString;
 
-            return new PlayerInformation
+            return new VISABPlayer
             {
                 Health = player.mPlayerHealth,
                 RelativeHealth = player.mPlayerHealth / (float)Player.mMaxLife,
@@ -114,7 +120,7 @@ namespace Assets.Scripts.VISAB
                 Name = player.mName,
                 Plan = plan,
                 Weapon = player.mEquippedWeapon.mName,
-                Statistics = new PlayerStatistics
+                Statistics = new VISABPlayerStatistics
                 {
                     Deaths = player.mStatistics.DeathCount(),
                     Frags = player.mStatistics.FragCount(),

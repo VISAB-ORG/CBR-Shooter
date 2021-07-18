@@ -25,6 +25,7 @@ namespace Assets.Scripts.VISAB.Model
         public MapRectangle MapRectangle { get; set; }
 
         public IDictionary<string, string> PlayerInformation { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> PlayerColors { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// The speed at which the game is played.
