@@ -19,7 +19,7 @@ namespace Assets.Scripts.VISAB
         /// <summary>
         /// Information on all players
         /// </summary>
-        public IList<PlayerInformation> Players { get; } = new List<PlayerInformation>();
+        public IList<VISABPlayer> Players { get; } = new List<VISABPlayer>();
 
         /// <summary>
         /// The current round

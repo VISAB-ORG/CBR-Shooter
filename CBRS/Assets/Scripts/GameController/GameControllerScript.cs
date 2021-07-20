@@ -370,11 +370,16 @@ public class GameControllerScript : MonoBehaviour
         {
             mCampingPositionTransforms.Add(mCampingPosition.transform.GetChild(i));
         }
+    }
 
+    public void Start()
+    {
         // Initially set the game information
         var players = CommonUnityFunctions.GetBotPlayersCorrectly();
         GameInformation.Players.Add(players.Item1);
         GameInformation.Players.Add(players.Item2);
+        if (Time.timeScale != SpeedController.Speed)
+            Time.timeScale = SpeedController.Speed;
         GameInformation.Speed = Time.timeScale;
 
         GameInformation.MapRectangle = VISABHelper.GetMapRectangle();
@@ -393,19 +398,43 @@ public class GameControllerScript : MonoBehaviour
             LoopBasedSession.StartStatisticsLoopAsync(VISABHelper.GetCurrentStatistics, () => GameInformation?.GameState == GameState.RUNNING, delay, VisabLoopCTS.Token, queryFile: true);
         }
 
-        // TODO: Test images
-        //var camera = GameObject.Find("SnapSpawn").GetComponent<Camera>();
-        //var settings = new SnapshotConfiguration
-        //{
-        //    GameObjectId = "Environment",
-        //    ImageHeight = 1024,
-        //    ImageWidth = 1024,
-        //    CameraOffset = 10f,
-        //    Orthographic = true
-        //};
+        var settings = new SnapshotConfiguration
+        {
+            GameObjectId = "Environment",
+            ImageHeight = 1024,
+            ImageWidth = 1024,
+            CameraOffset = 4f + 165.3f,
+            Orthographic = true
+        };
 
-        //var bytes = ImageCreator.TakeSnapshot(settings, null);
-        //System.IO.File.WriteAllBytes(@$"C:\Users\moritz\Desktop\CBR-Shooter\CBRS\Assets\Scripts\VISAB\{Path.GetRandomFileName()}.png", bytes);
+        var instantConfig = new InstantiationConfiguration
+        {
+            SpawnLocation = GameObject.Find("SnapSpawn").transform.position,
+            PrefabPath = "Prefabs/WeaponsCrate/WeaponsCrate",
+        };
+
+        var settings2 = new SnapshotConfiguration
+        {
+            ImageHeight = 1024,
+            ImageWidth = 1024,
+            CameraOffset = 2f,
+            CameraRotation = new Vector3(90, 0, 0),
+            Orthographic = false,
+            InstantiationSettings = instantConfig
+        };
+
+        var bytes = ImageCreator.TakeSnapshot(settings2);
+        var name = SnapshotName(settings2.ImageWidth, settings2.ImageHeight);
+
+        File.WriteAllBytes(name, bytes);
+
+        var images = VISABHelper.MakeSnapshots();
+        LoopBasedSession.SendImagesAsync(images).Wait();
+    }
+
+    public static string SnapshotName(int width, int height)
+    {
+        return string.Format("{0}/Snapshots/minimap_{1}x{2}_{3}.png", Application.dataPath, width, height, System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
     }
 
     private void UpdateGameInformation()

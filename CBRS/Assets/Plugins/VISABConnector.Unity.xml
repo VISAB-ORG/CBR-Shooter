@@ -11,19 +11,19 @@
         </member>
         <member name="T:VISABConnector.Unity.ImageCreator">
             <summary>
-            TODO: What is culling and what are layers?
+            TODO: Smart Instantiate
             </summary>
         </member>
-        <member name="M:VISABConnector.Unity.ImageCreator.TakeSnapshot(VISABConnector.Unity.SnapshotConfiguration,UnityEngine.Camera)">
+        <member name="M:VISABConnector.Unity.ImageCreator.TakeSnapshot(VISABConnector.Unity.SnapshotConfiguration)">
             <summary>
-            TODO: A bunch of dumb arguments checking You may also pass an existing camera.
+            TODO: A bunch of dumb arguments checking TODO: You may also pass an existing camera.
             </summary>
             <param name="config"></param>
             <returns></returns>
         </member>
-        <member name="M:VISABConnector.Unity.ImageCreator.TakeSnapshots(System.Collections.Generic.IEnumerable{VISABConnector.Unity.SnapshotConfiguration},UnityEngine.Camera)">
+        <member name="M:VISABConnector.Unity.ImageCreator.TakeSnapshots(System.Collections.Generic.IEnumerable{VISABConnector.Unity.SnapshotConfiguration})">
             <summary>
-            You may also pass an existing camera.
+            TODO: You may also pass an existing camera.
             </summary>
             <param name="configs"></param>
             <param name="camera"></param>
@@ -36,7 +36,7 @@
             <param name="config">The configuration based on which the GameObject will be instantiated</param>
             <returns>The instance for the given configuration</returns>
         </member>
-        <member name="P:VISABConnector.Unity.SnapshotConfiguration.GameObjectId">
+        <member name="M:VISABConnector.Unity.SnapshotConfiguration.#ctor">
             <summary>
             TODO: Really not name? GameObject.Find has a parameter with name that is used by us
             </summary>
