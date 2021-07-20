@@ -82,6 +82,7 @@ namespace Assets.Scripts.VISAB
             }
 
             metaInformation.PlayerInformation = playerInformation;
+            metaInformation.PlayerColors = playerColors;
 
             var machineGunInfo = GetWeaponInformation(new MachineGun(null));
             var pistolInfo = GetWeaponInformation(new Pistol(null));
