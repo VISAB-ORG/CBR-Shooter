@@ -1912,7 +1912,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hostAdress: http://localhost
   port: 2673
-  requestTimeout: 1
+  requestTimeout: 10
 --- !u!4 &386782711
 Transform:
   m_ObjectHideFlags: 0
@@ -4455,7 +4455,7 @@ Camera:
   far clip plane: 1234234
   field of view: 58.3
   orthographic: 1
-  orthographic size: 100
+  orthographic size: 76.84
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
