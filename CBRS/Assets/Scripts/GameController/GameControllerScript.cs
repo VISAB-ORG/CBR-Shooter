@@ -370,6 +370,8 @@ public class GameControllerScript : MonoBehaviour
         {
             mCampingPositionTransforms.Add(mCampingPosition.transform.GetChild(i));
         }
+
+        
     }
 
     public void Start()
@@ -398,35 +400,37 @@ public class GameControllerScript : MonoBehaviour
             LoopBasedSession.StartStatisticsLoopAsync(VISABHelper.GetCurrentStatistics, () => GameInformation?.GameState == GameState.RUNNING, delay, VisabLoopCTS.Token, queryFile: true);
         }
 
-        var settings = new SnapshotConfiguration
-        {
-            GameObjectId = "Environment",
-            ImageHeight = 1024,
-            ImageWidth = 1024,
-            CameraOffset = 4f + 165.3f,
-            Orthographic = true
-        };
-
         var instantConfig = new InstantiationConfiguration
         {
             SpawnLocation = GameObject.Find("SnapSpawn").transform.position,
             PrefabPath = "Prefabs/WeaponsCrate/WeaponsCrate",
         };
 
-        var settings2 = new SnapshotConfiguration
-        {
-            ImageHeight = 1024,
-            ImageWidth = 1024,
-            CameraOffset = 2f,
-            CameraRotation = new Vector3(90, 0, 0),
-            Orthographic = false,
-            InstantiationSettings = instantConfig
-        };
+        //var settings2 = new SnapshotConfiguration
+        //{
+        //    ImageHeight = 1024,
+        //    ImageWidth = 1024,
+        //    CameraOffset = 2f,
+        //    CameraRotation = new Vector3(0, 0, 45),
+        //    Orthographic = false,
+        //    InstantiationSettings = instantConfig
+        //};
 
-        var bytes = ImageCreator.TakeSnapshot(settings2);
-        var name = SnapshotName(settings2.ImageWidth, settings2.ImageHeight);
+        //var settings = new SnapshotConfiguration
+        //{
+        //    GameObjectId = "Environment",
+        //    ImageHeight = 1024,
+        //    ImageWidth = 1024,
+        //    CameraOffset = 2f,
+        //    CameraRotation = new Vector3(0, 0, 90),
+        //    Orthographic = true
+        //};
 
-        File.WriteAllBytes(name, bytes);
+        //var bytes = ImageCreator.TakeSnapshot(settings);
+        //var name = SnapshotName(settings.ImageWidth, settings.ImageHeight);
+
+        //File.WriteAllBytes(name, bytes);
+        //StartCoroutine(ImageExtractionRoutine());
 
         var images = VISABHelper.MakeSnapshots();
         LoopBasedSession.SendImagesAsync(images).Wait();
@@ -825,7 +829,7 @@ public class GameControllerScript : MonoBehaviour
         {
             mSpectatorCameraGameObject = Resources.Load("Prefabs/SpectatorCamera") as GameObject;
         }
-
+        
         restartPickUpTimer();
         checkInput();
 

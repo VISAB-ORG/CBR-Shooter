@@ -4,6 +4,7 @@ using Assets.Scripts.VISAB.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using VISABConnector.Unity;
 
@@ -152,13 +153,16 @@ namespace Assets.Scripts.VISAB
             {
                 ImageHeight = 1024,
                 ImageWidth = 1024,
-                CameraOffset = 2f,
-                Orthographic = true,
                 InstantiationSettings = new InstantiationConfiguration
                 {
                     PrefabPath = prefabPath,
                     SpawnLocation = new Vector3(100, 100, 100),
                     SpawnRotation = Quaternion.identity
+                },
+                CameraConfiguration = new CameraConfiguration
+                {
+                    CameraOffset = 2f,
+                    Orthographic = true,
                 }
             };
 
@@ -166,8 +170,11 @@ namespace Assets.Scripts.VISAB
             {
                 ImageHeight = 1024,
                 ImageWidth = 1024,
-                CameraOffset = 2f,
-                Orthographic = true,
+                CameraConfiguration = new CameraConfiguration
+                {
+                    CameraOffset = 2f,
+                    Orthographic = true,
+                },
                 GameObjectId = gameId
             };
 
@@ -201,6 +208,29 @@ namespace Assets.Scripts.VISAB
 
                 images.MoveableObjects.Add(pair.Key, bytes);
             }
+
+            var mapCOnfig = new SnapshotConfiguration
+            {
+                ImageHeight = 1024,
+                ImageWidth = 1024,
+                InstantiationSettings = new InstantiationConfiguration
+                {
+                    PrefabPath = "Prefabs/Environment45",
+                    SpawnLocation = GameObject.Find("SnapSpawn").transform.position
+                },
+                CameraConfiguration = new CameraConfiguration
+                {
+                    CameraOffset = 2f,
+                    Orthographic = true,
+                    CameraRotation = new Vector3(0,0,90),
+                    OrthographicSize = 75f
+                }
+            };
+            var snapshot = ImageCreator.TakeSnapshot(mapCOnfig);
+            images.Map = snapshot;
+
+            var savepath = GameControllerScript.SnapshotName(1024, 1024);
+            File.WriteAllBytes(savepath, snapshot);
 
             Debug.Log(JsonConvert.SerializeObject(images));
 
