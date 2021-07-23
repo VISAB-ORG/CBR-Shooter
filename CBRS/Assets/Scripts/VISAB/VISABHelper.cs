@@ -137,10 +137,12 @@ namespace Assets.Scripts.VISAB
         /// <returns>A Vector2 with Vector2.X = in.z, Vector2.Y = in.x</returns>
         private static System.Numerics.Vector2 Vector3ToVector2(Vector3 @in)
         {
+            var rotated = Quaternion.Euler(new Vector3(0, 45, 0)) * @in;
+
             return new System.Numerics.Vector2
             {
-                X = @in.z,
-                Y = @in.x
+                X = rotated.x,
+                Y = rotated.z
             };
         }
 
@@ -207,16 +209,21 @@ namespace Assets.Scripts.VISAB
 
         public static MapRectangle GetMapRectangle()
         {
-            var bounds = GameObject.Find("Environment").GetBoundsWithChildren();
+            // Create a new prefab instance that is pre rotated.
+            // We have to do this, since rotating the game object dynamically does not rotate the renderes/colliders.
+            // Infact, colliders and renderers can not be rotated at execution time in general.
+            var clone = GameObject.Instantiate(Resources.Load("Prefabs/Environment45")) as GameObject;
 
-            var leftBounds = GameObject.Find("LevelExtentLeft").GetComponent<Collider>().bounds;
+            var bounds = clone.GetBoundsWithChildren();
+            var anchorPoint = new System.Numerics.Vector2 { X = bounds.min.x, Y = bounds.max.z };
+            GameObject.Destroy(clone);
 
-            var anchorPoint = new System.Numerics.Vector2 { X = leftBounds.max.z, Y = bounds.min.x };
-
-            var realHeight = (int)(bounds.size.x / Math.Sqrt(2));
-            var realWidth = realHeight;
-
-            return new Assets.Scripts.VISAB.Model.MapRectangle { Height = realHeight, Width = realWidth, TopLeftAnchorPoint = anchorPoint };
+            return new MapRectangle
+            {
+                Height = (int)bounds.size.z,
+                Width = (int)bounds.size.x,
+                TopLeftAnchorPoint = anchorPoint
+            };
         }
 
         public static Bounds GetBoundsWithChildren(this GameObject gameObject)
@@ -227,7 +234,7 @@ namespace Assets.Scripts.VISAB
 
             for (int i = 1; i < renderers.Length; i++)
             {
-                if (renderers[i].enabled)
+                if (renderers[i])
                 {
                     bounds.Encapsulate(renderers[i].bounds);
                 }
