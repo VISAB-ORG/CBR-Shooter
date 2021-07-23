@@ -216,13 +216,13 @@ namespace Assets.Scripts.VISAB
                 InstantiationSettings = new InstantiationConfiguration
                 {
                     PrefabPath = "Prefabs/Environment45",
-                    SpawnLocation = GameObject.Find("SnapSpawn").transform.position
+                    SpawnLocation = new Vector3(500, 500, 500)
                 },
                 CameraConfiguration = new CameraConfiguration
                 {
                     CameraOffset = 2f,
                     Orthographic = true,
-                    CameraRotation = new Vector3(0,0,90),
+                    CameraRotation = new Vector3(0, 0, 45),
                     OrthographicSize = 75f
                 }
             };
