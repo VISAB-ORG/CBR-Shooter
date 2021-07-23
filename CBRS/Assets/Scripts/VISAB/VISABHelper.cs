@@ -161,8 +161,9 @@ namespace Assets.Scripts.VISAB
                 },
                 CameraConfiguration = new CameraConfiguration
                 {
-                    CameraOffset = 2f,
-                    Orthographic = true,
+                    CameraOffset = 1f,
+                    Orthographic = false,
+                    UseAbsoluteOffset = true
                 }
             };
 
@@ -173,19 +174,20 @@ namespace Assets.Scripts.VISAB
                 CameraConfiguration = new CameraConfiguration
                 {
                     CameraOffset = 2f,
-                    Orthographic = true,
+                    Orthographic = false,
+                    UseAbsoluteOffset = true
                 },
                 GameObjectId = gameId
             };
 
-            var prefabPaths = new Dictionary<string, string>
+            var spawnablePrefabPaths = new Dictionary<string, string>
             {
                 { "WeaponCrate", "Prefabs/WeaponsCrate/WeaponsCrate" },
                 { "M4a1", "Prefabs/M4A1_Collectable" },
                 { "Health", "Prefabs/Health" }
             };
 
-            var existingIds = new Dictionary<string, string>
+            var playerIds = new Dictionary<string, string>
             {
                 { "John Doe", "John Doe" },
                 { "Jane Doe", "Jane Doe" }
@@ -193,20 +195,15 @@ namespace Assets.Scripts.VISAB
 
             var images = new VISABImageContainer();
 
-            foreach (var pair in prefabPaths)
+            foreach (var pair in spawnablePrefabPaths)
             {
                 var config = defaultInstantiate(pair.Value);
                 var bytes = ImageCreator.TakeSnapshot(config);
+                var path = GameControllerScript.SnapshotName(234, 234);
+
+                File.WriteAllBytes(path, bytes);
 
                 images.StaticObjects.Add(pair.Key, bytes);
-            }
-
-            foreach (var pair in existingIds)
-            {
-                var config = defaultExisting(pair.Value);
-                var bytes = ImageCreator.TakeSnapshot(config);
-
-                images.MoveableObjects.Add(pair.Key, bytes);
             }
 
             var mapCOnfig = new SnapshotConfiguration
@@ -228,6 +225,18 @@ namespace Assets.Scripts.VISAB
             };
             var snapshot = ImageCreator.TakeSnapshot(mapCOnfig);
             images.Map = snapshot;
+
+            foreach (var pair in playerIds)
+            {
+                var config = defaultExisting(pair.Value);
+                var bytes = ImageCreator.TakeSnapshot(config);
+
+                var path = GameControllerScript.SnapshotName(235, 235);
+
+                File.WriteAllBytes(path, bytes);
+
+                images.MoveableObjects.Add(pair.Key, bytes);
+            }
 
             var savepath = GameControllerScript.SnapshotName(1024, 1024);
             File.WriteAllBytes(savepath, snapshot);
