@@ -173,7 +173,7 @@ namespace Assets.Scripts.VISAB
                 ImageWidth = 1024,
                 CameraConfiguration = new CameraConfiguration
                 {
-                    CameraOffset = 2f,
+                    CameraOffset = 10f,
                     Orthographic = false,
                     UseAbsoluteOffset = true
                 },
