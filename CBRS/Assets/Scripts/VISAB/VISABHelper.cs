@@ -17,11 +17,11 @@ namespace Assets.Scripts.VISAB
         /// </summary>
         public const int SendPerSecond = 10;
 
-        public static string HostAdress { get; set; }
+        public static string HostAdress { get; set; } = "http://25.44.85.33";
 
-        public static int Port { get; set; }
+        public static int Port { get; set; } = 2673;
 
-        public static int RequestTimeout { get; set; }
+        public static int RequestTimeout { get; set; } = 15;
 
         public static VISABStatistics GetCurrentStatistics()
         {

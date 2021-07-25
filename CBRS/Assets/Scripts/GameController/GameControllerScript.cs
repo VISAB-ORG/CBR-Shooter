@@ -371,7 +371,7 @@ public class GameControllerScript : MonoBehaviour
             mCampingPositionTransforms.Add(mCampingPosition.transform.GetChild(i));
         }
 
-        
+
     }
 
     public void Start()
@@ -812,6 +812,7 @@ public class GameControllerScript : MonoBehaviour
         mSpectatorCameraGameObject.GetComponent<PlayerPerspective>().enabled = true;
         mSpectatorCameraGameObject.SetActive(true);
         mSpectatorCameraGameObject.GetComponent<Camera>().enabled = true;
+        mSpectatorCamera.GetComponent<Camera>().cullingMask = 0;
         hudCanvas.SetActive(false);
     }
 
@@ -829,7 +830,7 @@ public class GameControllerScript : MonoBehaviour
         {
             mSpectatorCameraGameObject = Resources.Load("Prefabs/SpectatorCamera") as GameObject;
         }
-        
+
         restartPickUpTimer();
         checkInput();
 
