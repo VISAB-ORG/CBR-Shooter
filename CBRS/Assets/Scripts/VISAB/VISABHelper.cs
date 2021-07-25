@@ -208,8 +208,8 @@ namespace Assets.Scripts.VISAB
 
             var mapCOnfig = new SnapshotConfiguration
             {
-                ImageHeight = 1024,
-                ImageWidth = 1024,
+                ImageHeight = 550,
+                ImageWidth = 550,
                 InstantiationSettings = new InstantiationConfiguration
                 {
                     PrefabPath = "Prefabs/Environment45",
