@@ -173,9 +173,9 @@ namespace Assets.Scripts.VISAB
                 ImageWidth = 1024,
                 CameraConfiguration = new CameraConfiguration
                 {
-                    CameraOffset = 10f,
+                    CameraOffset = 1f,
                     Orthographic = false,
-                    UseAbsoluteOffset = true
+                    UseAbsoluteOffset = false
                 },
                 GameObjectId = gameId
             };

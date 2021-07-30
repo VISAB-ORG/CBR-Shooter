@@ -937,7 +937,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hostAdress: http://localhost
   port: 2673
-  requestTimeout: 2
+  requestTimeout: 1
 --- !u!4 &386782711
 Transform:
   m_ObjectHideFlags: 0
@@ -3363,7 +3363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3411a1f87f06c744bbccc017ce007f55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isActive: 1
+  isActive: 0
 --- !u!4 &1715215084
 Transform:
   m_ObjectHideFlags: 0
