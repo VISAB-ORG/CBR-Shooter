@@ -153,7 +153,6 @@ public class PlayerShooting : MonoBehaviour
         }
 
         mShootingPlayer.mEquippedWeapon.mCurrentMagazineAmmu -= 1;
-
         mTimer = 0f;
 
         mGunAudio.Play();
@@ -200,8 +199,9 @@ public class PlayerShooting : MonoBehaviour
         if (!hitPlayerIsWalking)
         {
             //C.W.: Random roll between 1 and 100 in case the potentially hit player is not moving.
-             roll = Random.Range(1, 100);
-        } else
+            roll = Random.Range(1, 100);
+        }
+        else
         {
             //C.W.: Random roll between 1 and 90 in case the potentially hit player is moving.
             // Considers a minus 10 points at rolling to simulate lower probability to hit a moving player.
@@ -263,27 +263,30 @@ public class PlayerShooting : MonoBehaviour
                     Debug.Log(mShootingPlayer.mName + " missed the target!");
                 }
             }
-        } else
+        }
+        else
         {
             //C.W.: If the shooting player isnt moving, check if the target player is moving.
-            if(hitPlayerIsWalking)
+            if (hitPlayerIsWalking)
             {
                 // C.W.: If the target player is moving there is 5 percent chance to miss him because of his movement.
-                if(roll <= 5)
+                if (roll <= 5)
                 {
                     //C.W.: Shooting Player missed his target because target was moving.
                     Debug.Log(mShootingPlayer.mName + " missed the target!");
-                } else
+                }
+                else
                 {
                     hitPlayer.TakeDamage(mShootingPlayer.mEquippedWeapon.mDamage);
                 }
-                
+
                 // C.W.: If the shooting player is not moving and the target player is not moving there is a 100 percent chance for a hit.
-            } else
+            }
+            else
             {
                 hitPlayer.TakeDamage(mShootingPlayer.mEquippedWeapon.mDamage);
             }
-            
+
         }
     }
 
@@ -362,7 +365,8 @@ public class PlayerShooting : MonoBehaviour
                             mShootingPlayer.mPlan.GetActionByIndex(i).finished = true;
                         }
 
-                    } else
+                    }
+                    else
                     {
                         // C.W.: Updates the ScoreBoard
                         ScoreBoardManager.increaseDeaths();

@@ -31,7 +31,7 @@ namespace Assets.Scripts.CMAS
         {
             //Debug.Log("Request: " + message.Body);
             var response = JsonParser<Response>.SerializeObject(
-                new Connection.Connection().Send(
+                new VISAB.Connection().Send(
                     JsonParser<Request>.DeserializeObject(message.Body)));
             
 
