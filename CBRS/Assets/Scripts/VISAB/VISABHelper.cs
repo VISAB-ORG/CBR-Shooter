@@ -161,11 +161,35 @@ namespace Assets.Scripts.VISAB
                 },
                 CameraConfiguration = new CameraConfiguration
                 {
-                    CameraOffset = 1f,
+                    CameraOffset = 1.5f,
                     Orthographic = false,
                     UseAbsoluteOffset = true,
-                    CameraRotation = new Vector3(90, 0, 0)
+                    //CameraRotation = new Vector3(90, 0, 0)
                 }
+            };
+
+            Func<string, string, SnapshotConfiguration> defaultChildObjects = (prefabPath, childName) => new SnapshotConfiguration
+            {
+                ImageHeight = 1024,
+                ImageWidth = 1024,
+                InstantiationSettings = new InstantiationConfiguration
+                {
+                    PrefabPath = prefabPath,
+                    SpawnLocation = new Vector3(100, 100, 100),
+                    SpawnRotation = Quaternion.Euler(0f, 90f, 90f)
+                },
+                CameraConfiguration = new CameraConfiguration
+                {
+                    CameraOffset = 1.5f,
+                    Orthographic = false,
+                    UseAbsoluteOffset = true,
+                    //CameraRotation = new Vector3(90, 0, 0)
+                },
+                ChildConfiguration = new ChildConfiguration
+                {
+                    ChildName = childName
+                }
+
             };
 
             Func<string, SnapshotConfiguration> defaultExisting = (gameId) => new SnapshotConfiguration
@@ -177,7 +201,7 @@ namespace Assets.Scripts.VISAB
                     CameraOffset = 1f,
                     Orthographic = false,
                     UseAbsoluteOffset = false,
-                    CameraRotation = new Vector3(90, 0, 0)
+                    //CameraRotation = new Vector3(90, 0, 0)
                 },
                 GameObjectId = gameId
             };
@@ -189,10 +213,11 @@ namespace Assets.Scripts.VISAB
                 { "Health", "Prefabs/Health" }
             };
 
-            var playerIds = new Dictionary<string, string>
+            // Key contains child name, Value contains prefab path
+            var spawnablePrefabPathsWithChild = new Dictionary<string, string>
             {
-                { "John Doe", "John Doe" },
-                { "Jane Doe", "Jane Doe" }
+                { "M4A1_Sopmod_Body", "Prefabs/M4A1_Collectable"},
+                { "Player", "Prefabs/Player" }
             };
 
             var images = new VISABImageContainer();
@@ -201,14 +226,25 @@ namespace Assets.Scripts.VISAB
             {
                 var config = defaultInstantiate(pair.Value);
                 var bytes = ImageCreator.TakeSnapshot(config);
-                var path = GameControllerScript.SnapshotName(234, 234);
+                var path = GameControllerScript.SnapshotName(234, 234, pair.Key);
 
                 File.WriteAllBytes(path, bytes);
 
                 images.StaticObjects.Add(pair.Key, bytes);
             }
 
-            var mapCOnfig = new SnapshotConfiguration
+            foreach (var pair in spawnablePrefabPathsWithChild)
+            {
+                var config = defaultChildObjects(pair.Value, pair.Key);
+                var bytes = ImageCreator.TakeSnapshot(config);
+                var path = GameControllerScript.SnapshotName(234, 234, pair.Key);
+
+                File.WriteAllBytes(path, bytes);
+
+                images.StaticObjects.Add(pair.Key, bytes);
+            }
+
+            var mapConfig = new SnapshotConfiguration
             {
                 ImageHeight = 550,
                 ImageWidth = 550,
@@ -221,26 +257,15 @@ namespace Assets.Scripts.VISAB
                 {
                     CameraOffset = 2f,
                     Orthographic = true,
-                    CameraRotation = new Vector3(90, 0, 45),
+                    CameraRotation = new Vector3(0, 0, 45),
                     OrthographicSize = 75f
                 }
             };
-            var snapshot = ImageCreator.TakeSnapshot(mapCOnfig);
+            var snapshot = ImageCreator.TakeSnapshot(mapConfig);
             images.Map = snapshot;
 
-            foreach (var pair in playerIds)
-            {
-                var config = defaultExisting(pair.Value);
-                var bytes = ImageCreator.TakeSnapshot(config);
 
-                var path = GameControllerScript.SnapshotName(235, 235);
-
-                File.WriteAllBytes(path, bytes);
-
-                images.MoveableObjects.Add(pair.Key, bytes);
-            }
-
-            var savepath = GameControllerScript.SnapshotName(1024, 1024);
+            var savepath = GameControllerScript.SnapshotName(1024, 1024, "Map");
             File.WriteAllBytes(savepath, snapshot);
 
             Debug.Log(JsonConvert.SerializeObject(images));

@@ -436,9 +436,9 @@ public class GameControllerScript : MonoBehaviour
         LoopBasedSession.SendImagesAsync(images).Wait();
     }
 
-    public static string SnapshotName(int width, int height)
+    public static string SnapshotName(int width, int height, string gameobj)
     {
-        return string.Format("{0}/Snapshots/minimap_{1}x{2}_{3}.png", Application.dataPath, width, height, System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+        return string.Format("{0}/Snapshots/{1}{2}x{3}_{4}.png", Application.dataPath, gameobj, width, height, System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
     }
 
     private void UpdateGameInformation()
