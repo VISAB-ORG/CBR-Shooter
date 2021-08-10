@@ -157,14 +157,13 @@ namespace Assets.Scripts.VISAB
                 {
                     PrefabPath = prefabPath,
                     SpawnLocation = new Vector3(100, 100, 100),
-                    SpawnRotation = Quaternion.identity
                 },
                 CameraConfiguration = new CameraConfiguration
                 {
                     CameraOffset = 1.5f,
                     Orthographic = false,
                     UseAbsoluteOffset = true,
-                    //CameraRotation = new Vector3(90, 0, 0)
+                    CameraRotation = new Vector3(90, 0, 0)
                 }
             };
 
@@ -176,14 +175,13 @@ namespace Assets.Scripts.VISAB
                 {
                     PrefabPath = prefabPath,
                     SpawnLocation = new Vector3(100, 100, 100),
-                    SpawnRotation = Quaternion.Euler(0f, 90f, 90f)
                 },
                 CameraConfiguration = new CameraConfiguration
                 {
                     CameraOffset = 1.5f,
                     Orthographic = false,
                     UseAbsoluteOffset = true,
-                    //CameraRotation = new Vector3(90, 0, 0)
+                    CameraRotation = new Vector3(90, 0, 0)
                 },
                 ChildConfiguration = new ChildConfiguration
                 {
@@ -201,7 +199,7 @@ namespace Assets.Scripts.VISAB
                     CameraOffset = 1f,
                     Orthographic = false,
                     UseAbsoluteOffset = false,
-                    //CameraRotation = new Vector3(90, 0, 0)
+                    CameraRotation = new Vector3(90, 0, 0)
                 },
                 GameObjectId = gameId
             };
@@ -257,7 +255,7 @@ namespace Assets.Scripts.VISAB
                 {
                     CameraOffset = 2f,
                     Orthographic = true,
-                    CameraRotation = new Vector3(0, 0, 45),
+                    CameraRotation = new Vector3(90, 0, 45),
                     OrthographicSize = 75f
                 }
             };
