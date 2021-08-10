@@ -187,27 +187,11 @@ namespace Assets.Scripts.VISAB
                 {
                     ChildName = childName
                 }
-
-            };
-
-            Func<string, SnapshotConfiguration> defaultExisting = (gameId) => new SnapshotConfiguration
-            {
-                ImageHeight = 1024,
-                ImageWidth = 1024,
-                CameraConfiguration = new CameraConfiguration
-                {
-                    CameraOffset = 1f,
-                    Orthographic = false,
-                    UseAbsoluteOffset = false,
-                    CameraRotation = new Vector3(90, 0, 0)
-                },
-                GameObjectId = gameId
             };
 
             var spawnablePrefabPaths = new Dictionary<string, string>
             {
                 { "WeaponCrate", "Prefabs/WeaponsCrate/WeaponsCrate" },
-                { "M4a1", "Prefabs/M4A1_Collectable" },
                 { "Health", "Prefabs/Health" }
             };
 
@@ -239,7 +223,14 @@ namespace Assets.Scripts.VISAB
 
                 File.WriteAllBytes(path, bytes);
 
-                images.StaticObjects.Add(pair.Key, bytes);
+                if (pair.Key == "M4A1_Sopmod_Body")
+                {
+                    images.StaticObjects.Add("M4a1", bytes);
+                }
+                else
+                {
+                    images.StaticObjects.Add(pair.Key, bytes);
+                }
             }
 
             var mapConfig = new SnapshotConfiguration
@@ -261,7 +252,6 @@ namespace Assets.Scripts.VISAB
             };
             var snapshot = ImageCreator.TakeSnapshot(mapConfig);
             images.Map = snapshot;
-
 
             var savepath = GameControllerScript.SnapshotName(1024, 1024, "Map");
             File.WriteAllBytes(savepath, snapshot);
