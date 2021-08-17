@@ -37,10 +37,34 @@
         </member>
         <member name="M:VISABConnector.Unity.ImageCreator.SetLayerRecursively(UnityEngine.GameObject,System.Int32)">
             <summary>
-            Assigns Layer to all children of gameobjects
+            Assigns Layer to all children of gameobject
             </summary>
             <param name="obj"></param>
             <param name="layer"></param>
+        </member>
+        <member name="M:VISABConnector.Unity.ImageCreator.ChangeLayer(UnityEngine.GameObject,VISABConnector.Unity.SnapshotConfiguration,System.Int32)">
+            <summary>
+            Assigns layer to just child or parent (hence all children)
+            </summary>
+            <param name="obj"></param>
+            <param name="config"></param>
+            <param name="layer"></param>
+        </member>
+        <member name="M:VISABConnector.Unity.ImageCreator.CameraSetup(VISABConnector.Unity.CameraConfiguration,System.String,UnityEngine.CameraClearFlags)">
+            <summary>
+            Creates and sets up camera accordingly
+            </summary>
+            <param name="camConfig"></param>
+            <param name="cullingLayer"></param>
+            <param name="clearFlags"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VISABConnector.Unity.ImageCreator.GameObjectSetup(VISABConnector.Unity.SnapshotConfiguration)">
+            <summary>
+            Instantiates or grabs Game Object and/or its child object
+            </summary>
+            <param name="config"></param>
+            <returns></returns>
         </member>
         <member name="M:VISABConnector.Unity.SnapshotConfiguration.#ctor">
             <summary>

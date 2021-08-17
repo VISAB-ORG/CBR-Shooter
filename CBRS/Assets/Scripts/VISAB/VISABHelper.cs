@@ -162,7 +162,7 @@ namespace Assets.Scripts.VISAB
                 {
                     CameraOffset = 1.5f,
                     Orthographic = false,
-                    UseAbsoluteOffset = true,
+                    UseAbsoluteOffset = false,
                     CameraRotation = new Vector3(90, 0, 0)
                 }
             };
@@ -180,7 +180,7 @@ namespace Assets.Scripts.VISAB
                 {
                     CameraOffset = 1.5f,
                     Orthographic = false,
-                    UseAbsoluteOffset = true,
+                    UseAbsoluteOffset = false,
                     CameraRotation = new Vector3(90, 0, 0)
                 },
                 ChildConfiguration = new ChildConfiguration
@@ -198,7 +198,6 @@ namespace Assets.Scripts.VISAB
             // Key contains child name, Value contains prefab path
             var spawnablePrefabPathsWithChild = new Dictionary<string, string>
             {
-                { "M4A1_Sopmod_Body", "Prefabs/M4A1_Collectable"},
                 { "Player", "Prefabs/Player" }
             };
 
@@ -223,15 +222,40 @@ namespace Assets.Scripts.VISAB
 
                 File.WriteAllBytes(path, bytes);
 
-                if (pair.Key == "M4A1_Sopmod_Body")
-                {
-                    images.StaticObjects.Add("M4a1", bytes);
-                }
-                else
-                {
-                    images.StaticObjects.Add(pair.Key, bytes);
-                }
+                images.StaticObjects.Add(pair.Key, bytes);
+                
             }
+
+            var M4Config = new SnapshotConfiguration
+            {
+                ImageHeight = 1024,
+                ImageWidth = 1024,
+                InstantiationSettings = new InstantiationConfiguration
+                {
+                    PrefabPath = "Prefabs/M4A1_Collectable",
+                    SpawnLocation = new Vector3(100, 100, 100),
+                    SpawnRotation = new Vector3(0, 90, 90)
+                },
+                CameraConfiguration = new CameraConfiguration
+                {
+                    CameraOffset = 1.5f,
+                    Orthographic = false,
+                    UseAbsoluteOffset = true,
+                    CameraRotation = new Vector3(90, 0, 0)
+                },
+                ChildConfiguration = new ChildConfiguration
+                {
+                    ChildName = "M4A1_Sopmod_Body",
+                    SnapAllChilds = true
+
+                }
+            };
+
+            var m4snapshot = ImageCreator.TakeSnapshot(M4Config);
+            images.StaticObjects.Add("M4", m4snapshot);
+
+            var m4path = GameControllerScript.SnapshotName(1024, 1024, "M4");
+            File.WriteAllBytes(m4path, m4snapshot);
 
             var mapConfig = new SnapshotConfiguration
             {
