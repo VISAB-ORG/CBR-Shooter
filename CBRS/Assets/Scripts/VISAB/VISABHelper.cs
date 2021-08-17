@@ -222,7 +222,7 @@ namespace Assets.Scripts.VISAB
 
                 File.WriteAllBytes(path, bytes);
 
-                images.StaticObjects.Add(pair.Key, bytes);
+                images.MoveableObjects.Add(pair.Key, bytes);
                 
             }
 
@@ -252,9 +252,9 @@ namespace Assets.Scripts.VISAB
             };
 
             var m4snapshot = ImageCreator.TakeSnapshot(M4Config);
-            images.StaticObjects.Add("M4", m4snapshot);
+            images.StaticObjects.Add("M4a1", m4snapshot);
 
-            var m4path = GameControllerScript.SnapshotName(1024, 1024, "M4");
+            var m4path = GameControllerScript.SnapshotName(1024, 1024, "M4a1");
             File.WriteAllBytes(m4path, m4snapshot);
 
             var mapConfig = new SnapshotConfiguration
