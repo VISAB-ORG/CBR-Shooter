@@ -146,9 +146,13 @@ namespace Assets.Scripts.VISAB
                 Y = rotated.z
             };
         }
-
+        /// <summary>
+        /// Method that contains configurations for the game objects that need to be snapshotted
+        /// </summary>
+        /// <returns></returns>
         public static VISABImageContainer MakeSnapshots()
         {
+            // default function for configuring game objects that need to be instantiated first
             Func<string, SnapshotConfiguration> defaultInstantiate = (prefabPath) => new SnapshotConfiguration
             {
                 ImageHeight = 1024,
@@ -167,6 +171,26 @@ namespace Assets.Scripts.VISAB
                 }
             };
 
+            // default function for configuring game objects that already exist
+            Func<string, SnapshotConfiguration> defaultExisting = (gameObj) => new SnapshotConfiguration
+            {
+                ImageHeight = 1024,
+                ImageWidth = 1024,
+                InstantiationSettings = new InstantiationConfiguration
+                {
+                    SpawnLocation = new Vector3(100, 100, 100),
+                },
+                CameraConfiguration = new CameraConfiguration
+                {
+                    CameraOffset = 1.5f,
+                    Orthographic = false,
+                    UseAbsoluteOffset = false,
+                    CameraRotation = new Vector3(90, 0, 0)
+                },
+                GameObjectId = gameObj
+            };
+
+            // default function for configuring game objects that need to be instantiated first and only one child object needs to be snapped
             Func<string, string, SnapshotConfiguration> defaultChildObjects = (prefabPath, childName) => new SnapshotConfiguration
             {
                 ImageHeight = 1024,
@@ -189,6 +213,7 @@ namespace Assets.Scripts.VISAB
                 }
             };
 
+            // dict for game objects that need to be instantiated first
             var spawnablePrefabPaths = new Dictionary<string, string>
             {
                 { "WeaponCrate", "Prefabs/WeaponsCrate/WeaponsCrate" },
@@ -201,8 +226,10 @@ namespace Assets.Scripts.VISAB
                 { "Player", "Prefabs/Player" }
             };
 
+            // image container that contains snapped images and will get sent to VISAB
             var images = new VISABImageContainer();
 
+            // snapshot and add spawnable objects to image container
             foreach (var pair in spawnablePrefabPaths)
             {
                 var config = defaultInstantiate(pair.Value);
@@ -214,6 +241,7 @@ namespace Assets.Scripts.VISAB
                 images.StaticObjects.Add(pair.Key, bytes);
             }
 
+            // snapshot and add spawnable gameobj with children to image container
             foreach (var pair in spawnablePrefabPathsWithChild)
             {
                 var config = defaultChildObjects(pair.Value, pair.Key);
@@ -226,6 +254,7 @@ namespace Assets.Scripts.VISAB
                 
             }
 
+            // seperate configuration for M4 GameObject 
             var M4Config = new SnapshotConfiguration
             {
                 ImageHeight = 1024,
@@ -234,6 +263,7 @@ namespace Assets.Scripts.VISAB
                 {
                     PrefabPath = "Prefabs/M4A1_Collectable",
                     SpawnLocation = new Vector3(100, 100, 100),
+                    // adjust rotation so it can be snapped from the side
                     SpawnRotation = new Vector3(0, 90, 90)
                 },
                 CameraConfiguration = new CameraConfiguration
@@ -246,17 +276,21 @@ namespace Assets.Scripts.VISAB
                 ChildConfiguration = new ChildConfiguration
                 {
                     ChildName = "M4A1_Sopmod_Body",
+                    // snap all children objects, not only the weapon body
                     SnapAllChilds = true
 
                 }
             };
 
+            // snapshot and add m4 to image container
             var m4snapshot = ImageCreator.TakeSnapshot(M4Config);
+            // string has to be "M4a1" so that VISAB recognizes correct image
             images.StaticObjects.Add("M4a1", m4snapshot);
 
             var m4path = GameControllerScript.SnapshotName(1024, 1024, "M4a1");
             File.WriteAllBytes(m4path, m4snapshot);
 
+            // config for map
             var mapConfig = new SnapshotConfiguration
             {
                 ImageHeight = 550,
@@ -274,6 +308,7 @@ namespace Assets.Scripts.VISAB
                     OrthographicSize = 75f
                 }
             };
+            // snapshot and add map to image container
             var snapshot = ImageCreator.TakeSnapshot(mapConfig);
             images.Map = snapshot;
 
