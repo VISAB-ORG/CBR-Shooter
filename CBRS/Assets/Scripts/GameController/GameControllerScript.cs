@@ -786,7 +786,7 @@ public class GameControllerScript : MonoBehaviour
         mSpectatorCameraGameObject.GetComponent<PlayerPerspective>().enabled = true;
         mSpectatorCameraGameObject.SetActive(true);
         mSpectatorCameraGameObject.GetComponent<Camera>().enabled = true;
-        mSpectatorCamera.GetComponent<Camera>().cullingMask = 0;
+        //mSpectatorCamera.GetComponent<Camera>().cullingMask = LayerMask.NameToLayer("Everything");
         hudCanvas.SetActive(false);
     }
 

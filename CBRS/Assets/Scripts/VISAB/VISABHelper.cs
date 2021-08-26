@@ -236,8 +236,9 @@ namespace Assets.Scripts.VISAB
                 var bytes = ImageCreator.TakeSnapshot(config);
                 var path = GameControllerScript.SnapshotName(234, 234, pair.Key);
 
+#if UNITY_EDITOR
                 File.WriteAllBytes(path, bytes);
-
+#endif
                 images.StaticObjects.Add(pair.Key, bytes);
             }
 
@@ -247,11 +248,11 @@ namespace Assets.Scripts.VISAB
                 var config = defaultChildObjects(pair.Value, pair.Key);
                 var bytes = ImageCreator.TakeSnapshot(config);
                 var path = GameControllerScript.SnapshotName(234, 234, pair.Key);
-
+#if UNITY_EDITOR
                 File.WriteAllBytes(path, bytes);
-
+#endif
                 images.MoveableObjects.Add(pair.Key, bytes);
-                
+
             }
 
             // seperate configuration for M4 GameObject 
@@ -288,8 +289,9 @@ namespace Assets.Scripts.VISAB
             images.StaticObjects.Add("M4a1", m4snapshot);
 
             var m4path = GameControllerScript.SnapshotName(1024, 1024, "M4a1");
+#if UNITY_EDITOR
             File.WriteAllBytes(m4path, m4snapshot);
-
+#endif
             // config for map
             var mapConfig = new SnapshotConfiguration
             {
@@ -313,8 +315,9 @@ namespace Assets.Scripts.VISAB
             images.Map = snapshot;
 
             var savepath = GameControllerScript.SnapshotName(1024, 1024, "Map");
+#if UNITY_EDITOR
             File.WriteAllBytes(savepath, snapshot);
-
+#endif
             Debug.Log(JsonConvert.SerializeObject(images));
 
             return images;
