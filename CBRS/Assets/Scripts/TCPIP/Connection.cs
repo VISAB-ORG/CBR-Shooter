@@ -6,7 +6,7 @@ using Assets.Scripts.CBR.Model;
 using System.Threading;
 using System.Text;
 
-namespace Assets.Scripts.VISAB
+namespace Assets.Scripts.TCPIP
 {
 
     /**

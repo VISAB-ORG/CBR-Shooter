@@ -8,7 +8,7 @@ using System.Threading;
 using System.Text;
 using Assets.Scripts.AI;
 
-namespace Assets.Scripts.ConnectionToPathViewer
+namespace Assets.Scripts.TCPIP
 {
 
     /**

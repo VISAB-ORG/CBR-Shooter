@@ -402,35 +402,9 @@ public class GameControllerScript : MonoBehaviour
 
         var instantConfig = new InstantiationConfiguration
         {
-            SpawnLocation = GameObject.Find("SnapSpawn").transform.position,
+            SpawnLocation = new Vector3(100, 100, 100),
             PrefabPath = "Prefabs/WeaponsCrate/WeaponsCrate",
         };
-
-        //var settings2 = new SnapshotConfiguration
-        //{
-        //    ImageHeight = 1024,
-        //    ImageWidth = 1024,
-        //    CameraOffset = 2f,
-        //    CameraRotation = new Vector3(0, 0, 45),
-        //    Orthographic = false,
-        //    InstantiationSettings = instantConfig
-        //};
-
-        //var settings = new SnapshotConfiguration
-        //{
-        //    GameObjectId = "Environment",
-        //    ImageHeight = 1024,
-        //    ImageWidth = 1024,
-        //    CameraOffset = 2f,
-        //    CameraRotation = new Vector3(0, 0, 90),
-        //    Orthographic = true
-        //};
-
-        //var bytes = ImageCreator.TakeSnapshot(settings);
-        //var name = SnapshotName(settings.ImageWidth, settings.ImageHeight);
-
-        //File.WriteAllBytes(name, bytes);
-        //StartCoroutine(ImageExtractionRoutine());
 
         var images = VISABHelper.MakeSnapshots();
         LoopBasedSession.SendImagesAsync(images).Wait();

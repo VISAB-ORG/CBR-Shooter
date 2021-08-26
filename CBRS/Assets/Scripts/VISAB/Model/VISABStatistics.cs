@@ -4,7 +4,7 @@ using VISABConnector;
 
 namespace Assets.Scripts.VISAB
 {
-    public class VISABStatistics : IVISABStatistics
+    public class VISABStatistics : IStatistics
     {
         /// <summary>
         /// The position of the ammunition item

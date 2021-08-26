@@ -3,6 +3,7 @@ using Assets.Scripts.CBR.Plan;
 using Assets.Scripts.Model;
 using Assets.Scripts.Util;
 using System;
+using Assets.Scripts.TCPIP;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -280,7 +281,7 @@ namespace Assets.Scripts.AI
             StatisticsForPathViewer statisticsForPathViewer = new StatisticsForPathViewer(cbrBotCoords, scriptBotCoords, cbrBotHealth, scriptBotHealth, cbrBotWeapon, scriptBotWeapon, cbrBotStatistic, scriptBotStatistic, scriptBotName, cbrBotName, cbrBotPlan, scriptBotWeaponMagammu, cbrBotWeaponMagammu, healthPosition, ammuPosition, weaponPosition, roundCounter, scriptBotPlan);
 
             JsonParser<StatisticsForPathViewer>.SerializeObject(
-                new ConnectionToPathViewer.ConnectionToPathViewer().Send(
+                new ConnectionToPathViewer().Send(
                     statisticsForPathViewer));
         }
     }

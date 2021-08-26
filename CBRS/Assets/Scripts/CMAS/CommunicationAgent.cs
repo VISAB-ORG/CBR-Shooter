@@ -1,6 +1,7 @@
 ﻿using Boris;
 using Assets.Scripts.Util;
 using Assets.Scripts.CBR.Model;
+using Assets.Scripts.TCPIP;
 using UnityEngine;
 
 namespace Assets.Scripts.CMAS
@@ -31,7 +32,7 @@ namespace Assets.Scripts.CMAS
         {
             //Debug.Log("Request: " + message.Body);
             var response = JsonParser<Response>.SerializeObject(
-                new VISAB.Connection().Send(
+                new Connection().Send(
                     JsonParser<Request>.DeserializeObject(message.Body)));
             
 
