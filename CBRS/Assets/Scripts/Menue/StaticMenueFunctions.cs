@@ -63,7 +63,7 @@ public class StaticMenueFunctions
         {
             GameControllerScript.VisabLoopCTS.Cancel();
             Constants.proc.Kill();
-            Thread.Sleep(1 * VISABHelper.UpdateDelay);
+            Thread.Sleep(300);
         }
         catch { }
         finally

@@ -146,9 +146,13 @@ namespace Assets.Scripts.VISAB
                 Y = rotated.z
             };
         }
-
+        /// <summary>
+        /// Method that contains configurations for the game objects that need to be snapshotted
+        /// </summary>
+        /// <returns></returns>
         public static VISABImageContainer MakeSnapshots()
         {
+            // default function for configuring game objects that need to be instantiated first
             Func<string, SnapshotConfiguration> defaultInstantiate = (prefabPath) => new SnapshotConfiguration
             {
                 ImageHeight = 1024,
@@ -157,56 +161,139 @@ namespace Assets.Scripts.VISAB
                 {
                     PrefabPath = prefabPath,
                     SpawnLocation = new Vector3(100, 100, 100),
-                    SpawnRotation = Quaternion.identity
                 },
                 CameraConfiguration = new CameraConfiguration
                 {
-                    CameraOffset = 1f,
+                    CameraOffset = 1.5f,
                     Orthographic = false,
-                    UseAbsoluteOffset = true
+                    UseAbsoluteOffset = false,
+                    CameraRotation = new Vector3(90, 0, 0)
                 }
             };
 
-            Func<string, SnapshotConfiguration> defaultExisting = (gameId) => new SnapshotConfiguration
+            // default function for configuring game objects that already exist
+            Func<string, SnapshotConfiguration> defaultExisting = (gameObj) => new SnapshotConfiguration
             {
                 ImageHeight = 1024,
                 ImageWidth = 1024,
+                InstantiationSettings = new InstantiationConfiguration
+                {
+                    SpawnLocation = new Vector3(100, 100, 100),
+                },
                 CameraConfiguration = new CameraConfiguration
                 {
-                    CameraOffset = 1f,
+                    CameraOffset = 1.5f,
                     Orthographic = false,
-                    UseAbsoluteOffset = false
+                    UseAbsoluteOffset = false,
+                    CameraRotation = new Vector3(90, 0, 0)
                 },
-                GameObjectId = gameId
+                GameObjectId = gameObj
             };
 
+            // default function for configuring game objects that need to be instantiated first and only one child object needs to be snapped
+            Func<string, string, SnapshotConfiguration> defaultChildObjects = (prefabPath, childName) => new SnapshotConfiguration
+            {
+                ImageHeight = 1024,
+                ImageWidth = 1024,
+                InstantiationSettings = new InstantiationConfiguration
+                {
+                    PrefabPath = prefabPath,
+                    SpawnLocation = new Vector3(100, 100, 100),
+                },
+                CameraConfiguration = new CameraConfiguration
+                {
+                    CameraOffset = 1.5f,
+                    Orthographic = false,
+                    UseAbsoluteOffset = false,
+                    CameraRotation = new Vector3(90, 0, 0)
+                },
+                ChildConfiguration = new ChildConfiguration
+                {
+                    ChildName = childName
+                }
+            };
+
+            // dict for game objects that need to be instantiated first
             var spawnablePrefabPaths = new Dictionary<string, string>
             {
                 { "WeaponCrate", "Prefabs/WeaponsCrate/WeaponsCrate" },
-                { "M4a1", "Prefabs/M4A1_Collectable" },
                 { "Health", "Prefabs/Health" }
             };
 
-            var playerIds = new Dictionary<string, string>
+            // Key contains child name, Value contains prefab path
+            var spawnablePrefabPathsWithChild = new Dictionary<string, string>
             {
-                { "John Doe", "John Doe" },
-                { "Jane Doe", "Jane Doe" }
+                { "Player", "Prefabs/Player" }
             };
 
+            // image container that contains snapped images and will get sent to VISAB
             var images = new VISABImageContainer();
 
+            // snapshot and add spawnable objects to image container
             foreach (var pair in spawnablePrefabPaths)
             {
                 var config = defaultInstantiate(pair.Value);
                 var bytes = ImageCreator.TakeSnapshot(config);
-                var path = GameControllerScript.SnapshotName(234, 234);
+                var path = GameControllerScript.SnapshotName(234, 234, pair.Key);
 
+#if UNITY_EDITOR
                 File.WriteAllBytes(path, bytes);
-
+#endif
                 images.StaticObjects.Add(pair.Key, bytes);
             }
 
-            var mapCOnfig = new SnapshotConfiguration
+            // snapshot and add spawnable gameobj with children to image container
+            foreach (var pair in spawnablePrefabPathsWithChild)
+            {
+                var config = defaultChildObjects(pair.Value, pair.Key);
+                var bytes = ImageCreator.TakeSnapshot(config);
+                var path = GameControllerScript.SnapshotName(234, 234, pair.Key);
+#if UNITY_EDITOR
+                File.WriteAllBytes(path, bytes);
+#endif
+                images.MoveableObjects.Add(pair.Key, bytes);
+
+            }
+
+            // seperate configuration for M4 GameObject 
+            var M4Config = new SnapshotConfiguration
+            {
+                ImageHeight = 1024,
+                ImageWidth = 1024,
+                InstantiationSettings = new InstantiationConfiguration
+                {
+                    PrefabPath = "Prefabs/M4A1_Collectable",
+                    SpawnLocation = new Vector3(100, 100, 100),
+                    // adjust rotation so it can be snapped from the side
+                    SpawnRotation = new Vector3(0, 90, 90)
+                },
+                CameraConfiguration = new CameraConfiguration
+                {
+                    CameraOffset = 1.5f,
+                    Orthographic = false,
+                    UseAbsoluteOffset = true,
+                    CameraRotation = new Vector3(90, 0, 0)
+                },
+                ChildConfiguration = new ChildConfiguration
+                {
+                    ChildName = "M4A1_Sopmod_Body",
+                    // snap all children objects, not only the weapon body
+                    SnapAllChilds = true
+
+                }
+            };
+
+            // snapshot and add m4 to image container
+            var m4snapshot = ImageCreator.TakeSnapshot(M4Config);
+            // string has to be "M4a1" so that VISAB recognizes correct image
+            images.StaticObjects.Add("M4a1", m4snapshot);
+
+            var m4path = GameControllerScript.SnapshotName(1024, 1024, "M4a1");
+#if UNITY_EDITOR
+            File.WriteAllBytes(m4path, m4snapshot);
+#endif
+            // config for map
+            var mapConfig = new SnapshotConfiguration
             {
                 ImageHeight = 550,
                 ImageWidth = 550,
@@ -219,28 +306,18 @@ namespace Assets.Scripts.VISAB
                 {
                     CameraOffset = 2f,
                     Orthographic = true,
-                    CameraRotation = new Vector3(0, 0, 45),
+                    CameraRotation = new Vector3(90, 0, 45),
                     OrthographicSize = 75f
                 }
             };
-            var snapshot = ImageCreator.TakeSnapshot(mapCOnfig);
+            // snapshot and add map to image container
+            var snapshot = ImageCreator.TakeSnapshot(mapConfig);
             images.Map = snapshot;
 
-            foreach (var pair in playerIds)
-            {
-                var config = defaultExisting(pair.Value);
-                var bytes = ImageCreator.TakeSnapshot(config);
-
-                var path = GameControllerScript.SnapshotName(235, 235);
-
-                File.WriteAllBytes(path, bytes);
-
-                images.MoveableObjects.Add(pair.Key, bytes);
-            }
-
-            var savepath = GameControllerScript.SnapshotName(1024, 1024);
+            var savepath = GameControllerScript.SnapshotName(1024, 1024, "Map");
+#if UNITY_EDITOR
             File.WriteAllBytes(savepath, snapshot);
-
+#endif
             Debug.Log(JsonConvert.SerializeObject(images));
 
             return images;
@@ -278,6 +355,7 @@ namespace Assets.Scripts.VISAB
                     bounds.Encapsulate(renderers[i].bounds);
                 }
             }
+
             return bounds;
         }
     }
