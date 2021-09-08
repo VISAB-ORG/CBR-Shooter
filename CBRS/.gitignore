@@ -1,9 +1,4 @@
-Build/MonoBleedingEdge/
-Build/Nightmares_Data/
-Build/Saves
-Build/*.exe
-Build/*.dll
-Build/log.txt
+Build/CBRShooter
 Build/visab_files/
 Saves/
 visab_files/
